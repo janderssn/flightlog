@@ -9,4 +9,12 @@ public class Pilot {
         mUserId = userId;
         mName = name;
     }
+
+    public String getName() {
+        return mName;
+    }
+
+    public String getUserId() {
+        return mUserId;
+    }
 }

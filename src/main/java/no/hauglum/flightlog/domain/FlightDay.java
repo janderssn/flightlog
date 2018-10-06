@@ -7,4 +7,8 @@ public class FlightDay {
     public FlightDay(String date) {
         mDate = date;
     }
+
+    public String getDate() {
+        return mDate;
+    }
 }
