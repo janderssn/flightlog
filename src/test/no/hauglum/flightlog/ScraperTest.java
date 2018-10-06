@@ -1,25 +1,12 @@
 package no.hauglum.flightlog;
 
-import no.hauglum.flightlog.domain.DayPass;
-import no.hauglum.flightlog.domain.FlightDay;
-import no.hauglum.flightlog.domain.Pilot;
-import org.hamcrest.core.IsEqual;
-import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
-import org.jsoup.parser.Tag;
 import org.jsoup.select.Elements;
 import org.junit.*;
 import org.junit.rules.ExpectedException;
-import org.mockito.Mockito;
 
-import java.time.LocalDate;
-import java.util.*;
-
-import static java.lang.System.out;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.core.IsEqual.equalTo;
-import static org.hamcrest.text.IsEqualIgnoringCase.equalToIgnoringCase;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.*;
@@ -56,14 +43,14 @@ public class ScraperTest {
     public void canParseUserId() {
         Element element = new Element("hello");
         element.attr("href", "asdkføaksjndøfjanø user_id=1234 sdjfnøajsnødj");
-        assertTrue("User id is not parsed","1234".equals(mScraper.parseUserId(element)));
+        assertTrue("User id is not parsed","1234".equals(mScraper.parseFlightlogId(element)));
     }
 
     @Test
     public void canParseUserId2() {
         Element element = new Element("hello");
         element.attr("href", "asdkføaksjndøfjanø user_id=1234");
-        assertTrue("User id is not parsed","1234".equals(mScraper.parseUserId(element)));
+        assertTrue("User id is not parsed","1234".equals(mScraper.parseFlightlogId(element)));
     }
 
     @Test

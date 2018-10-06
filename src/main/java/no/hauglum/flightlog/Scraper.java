@@ -81,14 +81,15 @@ public class Scraper {
                                 case 2: {
                                     Elements links = cell.select("a");
                                     Element firstLink = links.get(0);
-                                    String userId = parseUserId(firstLink);
+                                    String flightlogId = parseFlightlogId(firstLink);
                                     String name = parseName(firstLink);
 
-                                    Pilot pilot = new Pilot(userId, name);
-                                    pilots.put(userId, pilot);
+                                    Pilot pilot = new Pilot(flightlogId, name);
+
+                                    pilots.put(flightlogId, pilot);
 
                                     DayPass dayPass = new DayPass(pilot, flightDay);
-                                    dayPasses.put(flightDay.getDate() + "-" + pilot.getUserId(), dayPass);
+                                    dayPasses.put(flightDay.getDate() + "-" + pilot.getFlightlogId(), dayPass);
 
                                     break;
                                 }
@@ -130,7 +131,7 @@ public class Scraper {
         return row.select("td").size() == 6;
     }
 
-    protected String parseUserId(Element element) {
+    protected String parseFlightlogId(Element element) {
         String href = element.getElementsByAttribute("href").attr("href");
         int indexOf = href.indexOf(USER_ID);
         String substring = href.substring(indexOf + USER_ID.length() + 1);
