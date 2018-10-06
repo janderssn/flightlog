@@ -3,6 +3,7 @@ package no.hauglum.flightlog;
 import org.jsoup.HttpStatusException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 
 import java.io.IOException;
 import java.net.UnknownHostException;
@@ -18,5 +19,11 @@ public class Scraper {
         } catch (IOException e) {
             throw new FatalException("Noe har gått galt " + url, e);
         }
+    }
+
+    public boolean isADayRow(Element element) {
+        String text = element.text();
+
+        return text.matches("^\\d{4}-\\d{2}-\\d{2}$");
     }
 }
