@@ -12,6 +12,7 @@ import org.junit.*;
 import org.junit.rules.ExpectedException;
 import org.mockito.Mockito;
 
+import java.time.LocalDate;
 import java.util.*;
 
 import static java.lang.System.out;
@@ -49,69 +50,84 @@ public class ScraperTest {
     @Test
     public void scrapeFlightlog() {
 
-        Document doc = mScraper.scrape("https://no.flightlog.org/fl.html?l=2&country_id=160&start_id=6111&a=42");
-        Elements tables = doc.select("table");
-        int noOfTables = tables.size();
-        Element table = tables.get(noOfTables-1);
-        Elements rows = table.select("tr");
-        HashMap<String, Pilot> pilots = new HashMap<String, Pilot>();
-        List<FlightDay> days = new ArrayList<>();
-        HashMap<String, DayPass> dayPasses = new HashMap<String, DayPass>();
+        int startYear = 2016;
+        String takaOffId = "6111";
+        out.println("Rapport for startsted med id " + takaOffId);
 
-        FlightDay flightDay = null;
-        for (Element row : rows) {
-            if (mScraper.isADayRow(row)) {
-                out.print("**** Found new day ***  " + row.text());
-                flightDay = new FlightDay(row.text());
-                days.add(flightDay);
-            } else if (mScraper.isAFlightRow(row)) {
-                Elements cells = row.select("td");
-                for (int i = 0; i < cells.size(); i++) {
-                    Element cell = cells.get(i);
-                    switch (i) {
-                        case 0: {
-                            break;
-                        }
-                        case 1: {
-                            break;
-                        }
-                        case 2: {
-                            Elements links = cell.select("a");
-                            Element firstLink = links.get(0);
-                            String userId = mScraper.parseUserId(firstLink);
-                            String name = mScraper.parseName(firstLink);
+        for (int year = startYear; year < LocalDate.now().getYear() +1; year++) {
+            HashMap<String, Pilot> pilots = new HashMap<String, Pilot>();
+            List<FlightDay> days = new ArrayList<>();
+            HashMap<String, DayPass> dayPasses = new HashMap<String, DayPass>();
 
-                            Pilot pilot = new Pilot(userId, name);
-                            pilots.put(userId, pilot);
+            int offset = 0;
+            int pageSize = 1000;
+            for (int page = 0; page < 2; page++) { //TODO stop paging more intelligent
 
-                            DayPass dayPass = new DayPass(pilot, flightDay);
-                            dayPasses.put(flightDay.getDate() + "-" + pilot.getUserId(), dayPass);
+                offset = page * pageSize;
+                Document doc = mScraper.scrape("https://no.flightlog.org/fl.html?l=2&country_id=160&start_id=" + takaOffId + "&a=42&year=" + year + "&offset=" + offset);
+                Elements tables = doc.select("table");
+                int noOfTables = tables.size();
+                Element table = tables.get(noOfTables - 1);
+                Elements rows = table.select("tr");
 
-                            break;
+                FlightDay flightDay = null;
+                for (Element row : rows) {
+                    if (mScraper.isADayRow(row)) {
+                        //out.print("**** Found new day ***  " + row.text());
+                        flightDay = new FlightDay(row.text());
+                        days.add(flightDay);
+                    } else if (mScraper.isAFlightRow(row)) {
+                        Elements cells = row.select("td");
+                        for (int i = 0; i < cells.size(); i++) {
+                            Element cell = cells.get(i);
+                            switch (i) {
+                                case 0: {
+                                    break;
+                                }
+                                case 1: {
+                                    break;
+                                }
+                                case 2: {
+                                    Elements links = cell.select("a");
+                                    Element firstLink = links.get(0);
+                                    String userId = mScraper.parseUserId(firstLink);
+                                    String name = mScraper.parseName(firstLink);
+
+                                    Pilot pilot = new Pilot(userId, name);
+                                    pilots.put(userId, pilot);
+
+                                    DayPass dayPass = new DayPass(pilot, flightDay);
+                                    dayPasses.put(flightDay.getDate() + "-" + pilot.getUserId(), dayPass);
+
+                                    break;
+                                }
+                                case 3: {
+                                    break;
+                                }
+                                case 4: {
+                                    break;
+                                }
+                                case 5: {
+                                    break;
+                                }
+                            }
                         }
-                        case 3: {
-                            break;
-                        }
-                        case 4: {
-                            break;
-                        }
-                        case 5: {
-                            break;
-                        }
+                        cells.stream().forEach(c -> {
+                            //out.print(c.text());
+                        });
+                    } else {
+                        //out.println("some other row");
                     }
                 }
-                cells.stream().forEach(c -> {
-                    out.print(c.text());
-                });
-            } else {
-                out.println("some other row");
             }
-            out.println("");
-        }
 
-        out.println("Antall flydager: " + days.size());
-        out.println("Antall unike piloter: " +pilots.size());
-        out.println("Antall dagspass" +dayPasses.size());
+
+            out.println("Rapport for år " + year);
+            out.println("Antall flydager: " + days.size());
+            out.println("Antall unike piloter: " + pilots.size());
+            out.println("Antall dagspass " + dayPasses.size());
+            out.println();
+        }
     }
 
     @Test
