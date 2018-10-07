@@ -1,5 +1,7 @@
-package no.hauglum.flightlog;
+package no.hauglum.flightlog.service;
 
+import no.hauglum.flightlog.FatalException;
+import no.hauglum.flightlog.service.Scraper;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.junit.*;
