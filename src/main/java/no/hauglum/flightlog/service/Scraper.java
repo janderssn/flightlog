@@ -1,13 +1,8 @@
 package no.hauglum.flightlog.service;
 
-import no.hauglum.flightlog.FatalException;
 import no.hauglum.flightlog.domain.DayPass;
 import no.hauglum.flightlog.domain.FlightDay;
 import no.hauglum.flightlog.domain.Pilot;
-import no.hauglum.flightlog.domain.TakeOff;
-import org.jsoup.HttpStatusException;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
@@ -15,9 +10,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
-import java.net.UnknownHostException;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -28,20 +20,28 @@ import static no.hauglum.flightlog.domain.TakeOff.HOVEN_LOEN;
 
 @Service
 public class Scraper {
+    private Logger mLogger = LoggerFactory.getLogger(this.getClass().getName());
 
     @Autowired
     private DocumentFactory mDocumentFactory;
 
     public static final int INDEX_OF_TD_WITH_PILOT_INFO = 2;
-    private Logger mLogger = LoggerFactory.getLogger(this.getClass().getName());
     public static final String USER_ID = "user_id";
 
-    public void scrapeFlightlog() {
-        int startYear = 2016;
+    public void scrapeNorway(int startYear) {
+        scrapeCountry("160", startYear);
+    }
+
+    private void scrapeCountry(String countryId, int startYear) {
+        List<DocumentWrapper> documents = mDocumentFactory.getLogForCountry(countryId, startYear);
+        readDocuments(documents);
+    }
+
+    public void scapeHovenLoen(int startYear) {
         scrapeTakeOff(startYear, HOVEN_LOEN);
     }
 
-    private void scrapeTakeOff(int startYear, String takeOffId) {
+    public void scrapeTakeOff(int startYear, String takeOffId) {
         mLogger.info("Rapport for startsted med id " + takeOffId);
         List<DocumentWrapper> documents = mDocumentFactory.getLogForTakeOff(startYear, takeOffId);
         readDocuments(documents);
