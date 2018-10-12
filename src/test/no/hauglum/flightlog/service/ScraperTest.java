@@ -1,7 +1,6 @@
 package no.hauglum.flightlog.service;
 
 import no.hauglum.flightlog.FatalException;
-import no.hauglum.flightlog.service.Scraper;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.junit.*;
@@ -13,9 +12,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.*;
 
-/**
- *
- */
 public class ScraperTest {
 
     private Scraper mScraper;
@@ -37,6 +33,11 @@ public class ScraperTest {
     public void scrape() {
         Scraper scraper = new Scraper();
         scraper.scrape("https://spring.io/blog");
+    }
+
+    @Test
+    public void superBigTest(){
+        mScraper.scrapeFlightlog();
     }
 
     @Test
