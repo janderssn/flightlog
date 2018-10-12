@@ -4,6 +4,7 @@ import no.hauglum.flightlog.FatalException;
 import no.hauglum.flightlog.domain.DayPass;
 import no.hauglum.flightlog.domain.FlightDay;
 import no.hauglum.flightlog.domain.Pilot;
+import no.hauglum.flightlog.domain.TakeOff;
 import org.jsoup.HttpStatusException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -21,6 +22,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static no.hauglum.flightlog.domain.TakeOff.HOVEN_LOEN;
 
 @Service
 public class Scraper {
@@ -41,30 +44,23 @@ public class Scraper {
     }
 
 
-    public void scrapeFlightlog(String url) {
+    public void scrapeFlightlog() {
 
         int startYear = 2016;
-        String takaOffId = "6111";
-        mLogger.info("Rapport for startsted med id " + takaOffId);
+        scrapeTakeOff(startYear, HOVEN_LOEN);
+    }
 
-        List<DocumentWrapper> documents = new ArrayList<>();
+    private void scrapeTakeOff(int startYear, String takeOffId) {
+        mLogger.info("Rapport for startsted med id " + takeOffId);
+        List<DocumentWrapper> documents = getLogForTakeOff(startYear, takeOffId);
+        readDocuments(documents);
+    }
 
+    private void readDocuments(List<DocumentWrapper> documents) {
         HashMap<String, Pilot> pilots = new HashMap<String, Pilot>();
         List<FlightDay> days = new ArrayList<>();
         HashMap<String, DayPass> dayPasses = new HashMap<String, DayPass>();
 
-        for (int year = startYear; year < LocalDate.now().getYear() +1; year++) {
-
-            int offset = 0;
-            int pageSize = 1000;
-            for (int page = 0; page < 10; page++) {
-                offset = page * pageSize;
-                DocumentWrapper dw = new DocumentWrapper(scrape("https://no.flightlog.org/fl.html?l=2&country_id=160&start_id=" + takaOffId + "&a=42&year=" + year + "&offset=" + offset), year);
-                documents.add(dw);
-                if(getRowsInTable(dw.getDocument()).size() < 3)
-                    break;
-            }
-        }
 
         for (DocumentWrapper dw : documents) {
             Elements rows = getRowsInTable(dw.getDocument());
@@ -97,6 +93,24 @@ public class Scraper {
         mLogger.info("Antall unike piloter: " + pilots.size());
         mLogger.info("Antall dagspass " + dayPasses.size());
         mLogger.info("Rapport slutt");
+    }
+
+    private List<DocumentWrapper> getLogForTakeOff(int startYear, String takaOffId) {
+        List<DocumentWrapper> documents = new ArrayList<>();
+        for (int year = startYear; year < LocalDate.now().getYear() +1; year++) {
+
+            int offset = 0;
+            int pageSize = 1000;
+            for (int page = 0; page < 10; page++) {
+                offset = page * pageSize;
+                String url1 = "https://no.flightlog.org/fl.html?l=2&country_id=160&start_id=" + takaOffId + "&a=42&year=" + year + "&offset=" + offset;
+                DocumentWrapper dw = new DocumentWrapper(scrape(url1), year);
+                documents.add(dw);
+                if(getRowsInTable(dw.getDocument()).size() < 3)
+                    break;
+            }
+        }
+        return documents;
     }
 
     private Elements getRowsInTable(Document doc) {

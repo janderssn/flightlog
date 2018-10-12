@@ -12,9 +12,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.*;
 
-/**
- *
- */
 public class ScraperTest {
 
     private Scraper mScraper;
@@ -40,12 +37,12 @@ public class ScraperTest {
 
     @Test
     public void superBigTest(){
-        mScraper.scrapeFlightlog("https://www.flightlog.org/fl.html?l=1&a=47&country_id=160&year=2018&tripdate=2018-10-02");
+        mScraper.scrapeFlightlog();
     }
 
     @Test
     public void bigTest(){
-        mScraper.scrapeFlightlog("https://www.flightlog.org/fl.html?l=1&a=47&country_id=160&year=2018&tripdate=2018-10-02");
+        mScraper.scrapeFlightlog();
     }
 
     @Test
