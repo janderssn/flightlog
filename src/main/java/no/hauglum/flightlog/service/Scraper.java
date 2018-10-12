@@ -22,10 +22,9 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static java.lang.System.out;
-
 @Service
 public class Scraper {
+    public static final int INDEX_OF_TD_WITH_PILOT_INFO = 2;
     private Logger mLogger = LoggerFactory.getLogger(this.getClass().getName());
     public static final String USER_ID = "user_id";
 
@@ -42,91 +41,71 @@ public class Scraper {
     }
 
 
-    public void scrapeFlightlog() {
+    public void scrapeFlightlog(String url) {
 
         int startYear = 2016;
         String takaOffId = "6111";
         mLogger.info("Rapport for startsted med id " + takaOffId);
 
+        List<DocumentWrapper> documents = new ArrayList<>();
+
+        HashMap<String, Pilot> pilots = new HashMap<String, Pilot>();
+        List<FlightDay> days = new ArrayList<>();
+        HashMap<String, DayPass> dayPasses = new HashMap<String, DayPass>();
+
         for (int year = startYear; year < LocalDate.now().getYear() +1; year++) {
-            HashMap<String, Pilot> pilots = new HashMap<String, Pilot>();
-            List<FlightDay> days = new ArrayList<>();
-            HashMap<String, DayPass> dayPasses = new HashMap<String, DayPass>();
 
             int offset = 0;
             int pageSize = 1000;
             for (int page = 0; page < 10; page++) {
-
                 offset = page * pageSize;
-                Document doc = scrape("https://no.flightlog.org/fl.html?l=2&country_id=160&start_id=" + takaOffId + "&a=42&year=" + year + "&offset=" + offset);
-                Elements tables = doc.select("table");
-                int noOfTables = tables.size();
-                Element table = tables.get(noOfTables - 1);
-                Elements rows = table.select("tr");
-
-                if(rows.size()< 3)
+                DocumentWrapper dw = new DocumentWrapper(scrape("https://no.flightlog.org/fl.html?l=2&country_id=160&start_id=" + takaOffId + "&a=42&year=" + year + "&offset=" + offset), year);
+                documents.add(dw);
+                if(getRowsInTable(dw.getDocument()).size() < 3)
                     break;
+            }
+        }
 
-                FlightDay flightDay = null;
-                for (Element row : rows) {
-                    if (isADayRow(row)) {
-                        //out.print("**** Found new day ***  " + row.text());
-                        flightDay = new FlightDay(row.text());
-                        days.add(flightDay);
-                    } else if (isAFlightRow(row)) {
-                        Elements cells = row.select("td");
-                        for (int i = 0; i < cells.size(); i++) {
-                            Element cell = cells.get(i);
-                            switch (i) {
-                                case 0: {
-                                    break;
-                                }
-                                case 1: {
-                                    break;
-                                }
-                                case 2: {
-                                    Elements links = cell.select("a");
-                                    Element firstLink = links.get(0);
-                                    String flightlogId = parseFlightlogId(firstLink);
-                                    String name = parseName(firstLink);
+        for (DocumentWrapper dw : documents) {
+            Elements rows = getRowsInTable(dw.getDocument());
 
-                                    Pilot pilot = new Pilot(flightlogId, name);
-
-                                    pilots.put(flightlogId, pilot);
-
-                                    DayPass dayPass = new DayPass(pilot, flightDay);
-                                    dayPasses.put(flightDay.getDate() + "-" + pilot.getFlightlogId(), dayPass);
-
-                                    break;
-                                }
-                                case 3: {
-                                    break;
-                                }
-                                case 4: {
-                                    break;
-                                }
-                                case 5: {
-                                    break;
-                                }
-                            }
-                        }
-                        cells.stream().forEach(c -> {
-                            //out.print(c.text());
-                        });
-                    } else {
-                        mLogger.debug("some other row");
-                    }
+            FlightDay flightDay = null;
+            for (Element row : rows) {
+                if (isADayRow(row)) {
+                    flightDay = new FlightDay(row.text());
+                    days.add(flightDay);
+                } else if (isAFlightRow(row)) {
+                    Elements cells = row.select("td");
+                    Element cell = cells.get(INDEX_OF_TD_WITH_PILOT_INFO);
+                    Elements links = cell.select("a");
+                    Element firstLink = links.get(0);
+                    String flightlogId = parseFlightlogId(firstLink);
+                    String name = parseName(firstLink);
+                    Pilot pilot = new Pilot(flightlogId, name);
+                    pilots.put(flightlogId, pilot);
+                    DayPass dayPass = new DayPass(pilot, flightDay);
+                    dayPasses.put(flightDay.getDate() + "-" + pilot.getFlightlogId(), dayPass);
+                    cells.stream().forEach(c -> {
+                    });
+                } else {
+                    mLogger.debug("some other row in table found");
                 }
             }
-
-
-            mLogger.info("Rapport for år " + year);
-            mLogger.info("Antall flydager: " + days.size());
-            mLogger.info("Antall unike piloter: " + pilots.size());
-            mLogger.info("Antall dagspass " + dayPasses.size());
-            mLogger.info("Rapport slutt");
         }
+        mLogger.info("Sluttrapport" );
+        mLogger.info("Antall flydager: " + days.size());
+        mLogger.info("Antall unike piloter: " + pilots.size());
+        mLogger.info("Antall dagspass " + dayPasses.size());
+        mLogger.info("Rapport slutt");
     }
+
+    private Elements getRowsInTable(Document doc) {
+        Elements tables = doc.select("table");
+        int noOfTables = tables.size();
+        Element table = tables.get(noOfTables - 1);
+        return table.select("tr");
+    }
+
     protected boolean isADayRow(Element element) {
         String text = element.text();
 

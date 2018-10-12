@@ -19,10 +19,6 @@ public class PilotService {
     @Autowired
     private PilotRepository mPilotRepository;
 
-    @Scheduled(cron = "* * * * * *")//= every  seconds.
-    public void getNewFlights(){
-        System.out.println(" hei");
-    }
 
     public List<Pilot> getPilots() {
         return (List<Pilot>) mPilotRepository.findAll();

@@ -1,7 +1,6 @@
 package no.hauglum.flightlog.service;
 
 import no.hauglum.flightlog.FatalException;
-import no.hauglum.flightlog.service.Scraper;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.junit.*;
@@ -40,8 +39,13 @@ public class ScraperTest {
     }
 
     @Test
+    public void superBigTest(){
+        mScraper.scrapeFlightlog("https://www.flightlog.org/fl.html?l=1&a=47&country_id=160&year=2018&tripdate=2018-10-02");
+    }
+
+    @Test
     public void bigTest(){
-        mScraper.scrapeFlightlog();
+        mScraper.scrapeFlightlog("https://www.flightlog.org/fl.html?l=1&a=47&country_id=160&year=2018&tripdate=2018-10-02");
     }
 
     @Test

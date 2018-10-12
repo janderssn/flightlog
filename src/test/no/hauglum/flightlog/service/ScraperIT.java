@@ -16,7 +16,7 @@ public class ScraperIT {
 
     @Test
     public void canFindAndUpdateFlightsAndPilots(){
-        mScraper.scrapeFlightlog();
+        mScraper.scrapeFlightlog("https://www.flightlog.org/fl.html?l=1&a=47&country_id=160&year=2018&tripdate=2018-10-02");
     }
 }
 
