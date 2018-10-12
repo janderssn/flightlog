@@ -31,18 +31,8 @@ public class ScraperTest {
 
     @Test
     public void scrape() {
-        Scraper scraper = new Scraper();
+        DocumentFactory scraper = new DocumentFactory();
         scraper.scrape("https://spring.io/blog");
-    }
-
-    @Test
-    public void superBigTest(){
-        mScraper.scrapeFlightlog();
-    }
-
-    @Test
-    public void bigTest(){
-        mScraper.scrapeFlightlog();
     }
 
     @Test
@@ -97,14 +87,14 @@ public class ScraperTest {
 
     @Test
     public void badUrl() {
-        Scraper scraper = new Scraper();
+        DocumentFactory scraper = new DocumentFactory();
         exception.expect(FatalException.class);
         scraper.scrape("https://spring.io.io.io.io.io/blog");
     }
 
     @Test
     public void badPage() {
-        Scraper scraper = new Scraper();
+        DocumentFactory scraper = new DocumentFactory();
         exception.expect(FatalException.class);
         scraper.scrape("https://spring.io/HUBBABUBBA");
     }

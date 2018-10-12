@@ -11,6 +11,10 @@ public class DocumentWrapper {
         mYear = year;
     }
 
+    public DocumentWrapper(Document document) {
+        mDocument = document;
+    }
+
     public Document getDocument() {
         return mDocument;
     }

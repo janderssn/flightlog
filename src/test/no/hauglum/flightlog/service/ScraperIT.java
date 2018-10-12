@@ -15,8 +15,13 @@ public class ScraperIT {
     private Scraper mScraper;
 
     @Test
-    public void canFindAndUpdateFlightsAndPilots(){
-        mScraper.scrapeFlightlog();
+    public void scapeHovenLoen(){
+        mScraper.scapeHovenLoen(2016);
+    }
+
+    @Test
+    public void scrapeNorway(){
+        mScraper.scrapeNorway(2018);
     }
 }
 
