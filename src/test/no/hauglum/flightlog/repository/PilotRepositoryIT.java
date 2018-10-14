@@ -15,7 +15,7 @@ import static org.junit.Assert.*;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
-//@Transactional
+@Transactional
 public class PilotRepositoryIT {
 
     @Autowired
@@ -32,6 +32,20 @@ public class PilotRepositoryIT {
 
         assertTrue(byName.size() == 1);
         assertTrue(byName.get(0).getFlightlogId().endsWith("123"));
+
+    }
+
+    @Test
+    public void findByFlightlogId() {
+        assertTrue(mPilotRepository.findAll() != null);
+
+        String name = "HUBBA";
+        Pilot pilot = new Pilot("123", name);
+        mPilotRepository.save(pilot);
+        Pilot oneByFlightlogId = mPilotRepository.findOneByFlightlogId(pilot.getFlightlogId());
+
+        assertTrue(oneByFlightlogId != null);
+        assertTrue(oneByFlightlogId.getFlightlogId().endsWith("123"));
 
     }
 }

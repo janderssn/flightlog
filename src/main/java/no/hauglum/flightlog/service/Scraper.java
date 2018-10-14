@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -26,7 +27,10 @@ public class Scraper {
 
     @Autowired
     private DocumentFactory mDocumentFactory;
+    @Autowired
+    private PilotService mPilotService;
 
+    public static final int INDEX_OF_TD_WITH_COUNT_INFO = 3;
     public static final int INDEX_OF_TD_WITH_FLIGHT_INFO = 1;
     public static final int INDEX_OF_TD_WITH_PILOT_INFO = 2;
 
@@ -68,28 +72,19 @@ public class Scraper {
                     days.add(flightDay);
                 } else if (isAFlightRow(row)) {
                     Elements cells = row.select("td");
-                    //Type of flight
-                    Element flightCell = cells.get(INDEX_OF_TD_WITH_FLIGHT_INFO);
 
-                    FlightGroup flightGroup = parseFlightGroup(flightCell);
-                    flightGroups.put(flightGroup.getFlightlogId(), flightGroup);
-
-
-                    //Pilot
-                    Element cell = cells.get(INDEX_OF_TD_WITH_PILOT_INFO);
-                    Elements links = cell.select("a");
-                    Element firstLink = links.get(0);
-                    String flightlogId = parseFlightlogId(firstLink);
-                    String name = parseName(firstLink);
-                    Pilot pilot = new Pilot(flightlogId, name);
-                    pilots.put(flightlogId, pilot);
+                    Pilot pilot = parsePilot(cells);
+                    pilots.put(pilot.getFlightlogId(), pilot);
+                    mPilotService.updateOrCreate(pilot);
 
                     //Daypass
                     DayPass dayPass = new DayPass(pilot, flightDay);
                     dayPasses.put(flightDay.getDate() + "-" + pilot.getFlightlogId(), dayPass);
 
-                    cells.stream().forEach(c -> {
-                    });
+                    FlightGroup flightGroup = parseFlightGroup(cells);
+                    flightGroup.setPilot(pilot);
+                    flightGroup.setNoOfFlights(parseNoOfFlights(cells));
+                    flightGroups.put(flightGroup.getFlightlogId(), flightGroup);
 
                 } else {
                     mLogger.debug("some other row in table found");
@@ -104,7 +99,27 @@ public class Scraper {
         mLogger.info("Rapport slutt");
     }
 
-    private FlightGroup parseFlightGroup(Element flightCell) {
+    private Pilot parsePilot(Elements cells) {
+        //Pilot
+        Element cell = cells.get(INDEX_OF_TD_WITH_PILOT_INFO);
+        Elements links = cell.select("a");
+        Element firstLink = links.get(0);
+        String flightlogId = parseFlightlogId(firstLink);
+        String name = parseName(firstLink);
+        return new Pilot(flightlogId, name);
+    }
+
+    private int parseNoOfFlights(Elements cells) {
+        Element noOfFlightsCell = cells.get(INDEX_OF_TD_WITH_COUNT_INFO);
+        Element elementsMatchingText = noOfFlightsCell.getElementsMatchingText("/").last();
+        String text = Optional.ofNullable(elementsMatchingText).map(e -> e.text()).orElse("/ 1");
+        return Integer.parseInt(text.substring(text.indexOf("/")+2));
+    }
+
+    private FlightGroup parseFlightGroup(Elements cells) {
+
+        Element flightCell = cells.get(INDEX_OF_TD_WITH_FLIGHT_INFO);
+
         String tripId = parseTripId(flightCell);
 
         //Todo parse how many trips in group "/2"
