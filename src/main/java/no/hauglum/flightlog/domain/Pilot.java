@@ -4,6 +4,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import java.time.LocalDateTime;
 
 @Entity
 public class Pilot {
@@ -14,6 +15,7 @@ public class Pilot {
     @GeneratedValue(strategy=GenerationType.AUTO)
     private Long id;
 
+    private LocalDateTime updatedTime;
 
     private String flightlogId;
 
@@ -22,7 +24,23 @@ public class Pilot {
 
     public Pilot(String flightlogId, String name) {
         this.flightlogId = flightlogId;
+        this.name = name;LocalDateTime.now();
+    }
+
+    public void setName(String name) {
         this.name = name;
+    }
+
+    public void setFlightlogId(String flightlogId) {
+        this.flightlogId = flightlogId;
+    }
+
+    public LocalDateTime getUpdatedTime() {
+        return updatedTime;
+    }
+
+    public void setUpdatedTime(LocalDateTime updatedTime) {
+        this.updatedTime = updatedTime;
     }
 
     public String getName() {

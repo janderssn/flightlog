@@ -4,6 +4,8 @@ public class FlightGroup {
 
     private final String mFlightlogId;
     private Type mType;
+    private Pilot mPilot;
+    private int mNoOfFlights;
 
     public FlightGroup(String flightlogId) {
         mFlightlogId = flightlogId;
@@ -21,6 +23,22 @@ public class FlightGroup {
 
     public Type getType() {
         return mType;
+    }
+
+    public void setPilot(Pilot pilot) {
+        mPilot = pilot;
+    }
+
+    public Pilot getPilot() {
+        return mPilot;
+    }
+
+    public void setNoOfFlights(int noOfFlights) {
+        mNoOfFlights = noOfFlights;
+    }
+
+    public int getNoOfFlights() {
+        return mNoOfFlights;
     }
 
     public enum Type  {
