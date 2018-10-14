@@ -16,7 +16,7 @@ public class ScraperIT {
 
     @Test
     public void scapeHovenLoen(){
-        mScraper.scapeHovenLoen(2016);
+        mScraper.scapeHovenLoen(2018);
     }
 
     @Test

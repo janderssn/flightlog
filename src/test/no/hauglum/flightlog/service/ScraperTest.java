@@ -50,6 +50,21 @@ public class ScraperTest {
     }
 
     @Test
+    public void canParseTripId() {
+        Element element = new Element("hello");
+        element.attr("href", "asdkføaksjndøfjanø trip_id=60567858887");
+        assertTrue("Trip id is not parsed","60567858887".equals(mScraper.parseTripId(element)));
+    }
+
+    @Test
+    public void canParseTripIdShort() {
+        Element element = new Element("hello");
+        element.attr("href", "asdkføaksjndøfjanø trip_id=5");
+        assertTrue("Trip id is not parsed","5".equals(mScraper.parseTripId(element)));
+    }
+
+
+    @Test
     public void canDetectDayHeader() {
         Element element = mock(Element.class);
         when(element.text()).thenReturn("2018-04-13");
