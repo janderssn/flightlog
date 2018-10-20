@@ -48,4 +48,10 @@ public class PilotRepositoryIT {
         assertTrue(oneByFlightlogId.getFlightlogId().endsWith("123"));
 
     }
+
+    @Test
+    public void canCountPilots(){
+        List<Pilot> all = (List<Pilot>) mPilotRepository.findAll();
+        assertTrue(all.size() == mPilotRepository.count());
+    }
 }

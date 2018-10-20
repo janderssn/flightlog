@@ -9,7 +9,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
+import java.time.LocalDateTime;
 
 @Service
 public class PilotService {
@@ -20,8 +20,8 @@ public class PilotService {
     private PilotRepository mPilotRepository;
 
 
-    public List<Pilot> getPilots() {
-        return (List<Pilot>) mPilotRepository.findAll();
+    public Iterable<Pilot> getPilots() {
+        return  mPilotRepository.findAll();
     }
 
     @Scheduled(cron="${findNewFlightsCron}")
@@ -31,14 +31,22 @@ public class PilotService {
     }
 
     @Transactional
-    public void updateOrCreate(Pilot pilot) {
+    public Pilot updateOrCreate(Pilot pilot) {
         Pilot oneByFlightlogId = mPilotRepository.findOneByFlightlogId(pilot.getFlightlogId());
         if(oneByFlightlogId != null){
+            oneByFlightlogId.setUpdatedTime(LocalDateTime.now());
             oneByFlightlogId.setName(pilot.getName());
-            oneByFlightlogId.setUpdatedTime(pilot.getUpdatedTime());
             mPilotRepository.save(oneByFlightlogId);
+            mLogger.debug("One Pilot updated");
         } else {
-            mPilotRepository.save(pilot);
+            pilot.setUpdatedTime(LocalDateTime.now());
+            oneByFlightlogId = mPilotRepository.save(pilot);
+            mLogger.debug("New Pilot added to repo");
         }
+        return oneByFlightlogId;
+    }
+
+    public Long countAll() {
+        return mPilotRepository.count();
     }
 }

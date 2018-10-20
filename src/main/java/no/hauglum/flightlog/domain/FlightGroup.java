@@ -1,44 +1,54 @@
 package no.hauglum.flightlog.domain;
 
-public class FlightGroup {
+import javax.persistence.Entity;
+import javax.persistence.ManyToOne;
 
-    private final String mFlightlogId;
-    private Type mType;
-    private Pilot mPilot;
-    private int mNoOfFlights;
+@Entity
+public class FlightGroup extends BaseEntity{
+
+    private String flightlogId;
+    private Type type;
+
+    @ManyToOne
+    private Pilot pilot;
+
+    private int noOfFlights;
+
+    protected FlightGroup() {
+    }
 
     public FlightGroup(String flightlogId) {
-        mFlightlogId = flightlogId;
+        this.flightlogId = flightlogId;
     }
 
     public void setType(Type type) {
         if(type == null)
             throw new IllegalArgumentException("Null is not a type, check image to type conversion");
-        mType = type;
+        this.type = type;
     }
 
     public String getFlightlogId() {
-        return mFlightlogId;
+        return flightlogId;
     }
 
     public Type getType() {
-        return mType;
+        return type;
     }
 
     public void setPilot(Pilot pilot) {
-        mPilot = pilot;
+        this.pilot = pilot;
     }
 
     public Pilot getPilot() {
-        return mPilot;
+        return pilot;
     }
 
     public void setNoOfFlights(int noOfFlights) {
-        mNoOfFlights = noOfFlights;
+        this.noOfFlights = noOfFlights;
     }
 
     public int getNoOfFlights() {
-        return mNoOfFlights;
+        return noOfFlights;
     }
 
     public enum Type  {

@@ -29,6 +29,8 @@ public class Scraper {
     private DocumentFactory mDocumentFactory;
     @Autowired
     private PilotService mPilotService;
+    @Autowired
+    private FlightGroupService mFlightGroupService;
 
     public static final int INDEX_OF_TD_WITH_COUNT_INFO = 3;
     public static final int INDEX_OF_TD_WITH_FLIGHT_INFO = 1;
@@ -56,6 +58,11 @@ public class Scraper {
         readDocuments(documents);
     }
 
+    /**
+     * {@link DocumentFactory} produce documents based on the html-pages found in the Flightlog online.
+     * These docs will be read here and enteties will be extracted.
+     * @param documents
+     */
     private void readDocuments(List<DocumentWrapper> documents) {
         HashMap<String, Pilot> pilots = new HashMap<String, Pilot>();
         List<FlightDay> days = new ArrayList<>();
@@ -75,7 +82,7 @@ public class Scraper {
 
                     Pilot pilot = parsePilot(cells);
                     pilots.put(pilot.getFlightlogId(), pilot);
-                    mPilotService.updateOrCreate(pilot);
+                    pilot = mPilotService.updateOrCreate(pilot);
 
                     //Daypass
                     DayPass dayPass = new DayPass(pilot, flightDay);
@@ -85,6 +92,7 @@ public class Scraper {
                     flightGroup.setPilot(pilot);
                     flightGroup.setNoOfFlights(parseNoOfFlights(cells));
                     flightGroups.put(flightGroup.getFlightlogId(), flightGroup);
+                    mFlightGroupService.updateOrCreate(flightGroup);
 
                 } else {
                     mLogger.debug("some other row in table found");
