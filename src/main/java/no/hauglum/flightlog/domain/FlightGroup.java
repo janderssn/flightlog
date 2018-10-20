@@ -1,16 +1,23 @@
 package no.hauglum.flightlog.domain;
 
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.ManyToOne;
+import java.time.LocalDate;
 
 @Entity
 public class FlightGroup extends BaseEntity{
 
     private String flightlogId;
+
+    @Enumerated(EnumType.STRING)
     private Type type;
 
     @ManyToOne
     private Pilot pilot;
+
+    private LocalDate date;
 
     private int noOfFlights;
 
@@ -25,6 +32,14 @@ public class FlightGroup extends BaseEntity{
         if(type == null)
             throw new IllegalArgumentException("Null is not a type, check image to type conversion");
         this.type = type;
+    }
+
+    public LocalDate getDate() {
+        return date;
+    }
+
+    public void setDate(LocalDate date) {
+        this.date = date;
     }
 
     public String getFlightlogId() {

@@ -74,6 +74,7 @@ public class Scraper {
 
             FlightDay flightDay = null;
             for (Element row : rows) {
+
                 if (isADayRow(row)) {
                     flightDay = new FlightDay(row.text());
                     days.add(flightDay);
@@ -89,6 +90,7 @@ public class Scraper {
                     dayPasses.put(flightDay.getDate() + "-" + pilot.getFlightlogId(), dayPass);
 
                     FlightGroup flightGroup = parseFlightGroup(cells);
+                    flightGroup.setDate(flightDay.getDate());
                     flightGroup.setPilot(pilot);
                     flightGroup.setNoOfFlights(parseNoOfFlights(cells));
                     flightGroups.put(flightGroup.getFlightlogId(), flightGroup);
@@ -130,7 +132,7 @@ public class Scraper {
 
         String tripId = parseTripId(flightCell);
 
-        //Todo parse how many trips in group "/2"
+
         Elements elementsByAttribute = flightCell.getElementsByAttribute("src");
         if(elementsByAttribute.size() == 1){
             mLogger.debug("No track");

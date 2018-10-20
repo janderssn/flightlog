@@ -15,13 +15,21 @@ public class ScraperIT {
     private Scraper mScraper;
 
     @Test
-    public void scapeHovenLoen(){
+    public void scrapeHovenLoen(){
         mScraper.scapeHovenLoen(2018);
     }
 
     @Test
     public void scrapeNorway(){
         mScraper.scrapeNorway(2018);
+    }
+
+    @Test
+    public void scrapeNorwayFrom2011(){
+        for (int y = 2011; y < 2019; y++) {
+
+            mScraper.scrapeNorway(y);
+        }
     }
 }
 
