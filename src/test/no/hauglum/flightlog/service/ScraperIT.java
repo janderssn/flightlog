@@ -28,7 +28,7 @@ public class ScraperIT {
     public void scrapeNorwayFrom2011(){
         for (int y = 2011; y < 2019; y++) {
 
-            mScraper.scrapeNorway(y);
+            mScraper.scrapeNorway(y, y);
         }
     }
 }

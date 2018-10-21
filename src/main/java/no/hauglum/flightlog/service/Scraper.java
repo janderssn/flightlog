@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -43,8 +44,17 @@ public class Scraper {
         scrapeCountry("160", startYear);
     }
 
+    public void scrapeNorway(int startYear, int endYear) {
+        scrapeCountry("160", startYear, endYear);
+    }
+
     private void scrapeCountry(String countryId, int startYear) {
-        List<DocumentWrapper> documents = mDocumentFactory.getLogForCountry(countryId, startYear);
+        scrapeCountry(countryId, startYear, null);
+    }
+
+    private void scrapeCountry(String countryId, int startYear, Integer endYear) {
+        endYear = Optional.ofNullable(endYear).orElse(LocalDate.now().getYear());
+        List<DocumentWrapper> documents = mDocumentFactory.getLogForCountry(countryId, startYear, endYear);
         readDocuments(documents);
     }
 
