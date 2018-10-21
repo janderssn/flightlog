@@ -21,7 +21,7 @@ public class ScraperIT {
 
     @Test
     public void scrapeNorway(){
-        mScraper.scrapeNorway(2018);
+        mScraper.scrapeNorway(2015);
     }
 
     @Test

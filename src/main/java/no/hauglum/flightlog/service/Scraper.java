@@ -53,7 +53,7 @@ public class Scraper {
     }
 
     private void scrapeCountry(String countryId, int startYear, Integer endYear) {
-        endYear = Optional.ofNullable(endYear).orElse(LocalDate.now().getYear());
+        endYear = Optional.ofNullable(endYear).orElse(startYear);
         List<DocumentWrapper> documents = mDocumentFactory.getLogForCountry(countryId, startYear, endYear);
         readDocuments(documents);
     }

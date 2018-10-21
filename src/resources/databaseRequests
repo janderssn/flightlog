@@ -1,0 +1,3 @@
+H2 syntax
+Nice view of yearly count pr type
+SELECT year(date), type, sum(no_of_flights) FROM FLIGHT_GROUP group by type, year(date) order by type, year(date)
