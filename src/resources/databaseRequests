@@ -1,3 +1,7 @@
 H2 syntax
 Nice view of yearly count pr type
 SELECT year(date), type, sum(no_of_flights) FROM FLIGHT_GROUP group by type, year(date) order by type, year(date)
+
+check if pilot table is ok. should be the same number
+select count(*) from pilot;
+select count(*) from (select flightlog_id from pilot group by flightlog_id)
