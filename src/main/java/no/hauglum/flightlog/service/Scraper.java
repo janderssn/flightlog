@@ -79,7 +79,6 @@ public class Scraper {
      * @param documents
      */
     private void readDocuments(List<DocumentWrapper> documents) {
-       // HashMap<String, Pilot> pilots = new HashMap<String, Pilot>();
         List<FlightDay> days = new ArrayList<>();
         HashMap<String, DayPass> dayPasses = new HashMap<String, DayPass>();
         List<FlightGroup> flightGroups = new ArrayList<>();
@@ -97,10 +96,8 @@ public class Scraper {
                     Elements cells = row.select("td");
 
                     Pilot pilot = parsePilot(cells);
-        //            pilots.put(pilot.getFlightlogId(), pilot);
                     pilot = mPilotService.updateOrCreate(pilot);
 
-                    //Daypass
                     DayPass dayPass = new DayPass(pilot, flightDay);
                     dayPasses.put(flightDay.getDate() + "-" + pilot.getFlightlogId(), dayPass);
 
@@ -117,17 +114,14 @@ public class Scraper {
             }
         }
 
-        //mFlightGroupService.saveAll(flightGroups);
         mLogger.info("Sluttrapport" );
         mLogger.info("Antall flydager: " + days.size());
-        //mLogger.info("Antall unike piloter: " + pilots.size());
         mLogger.info("Antall dagspass " + dayPasses.size());
         mLogger.info(("Antall grupper av turer " + flightGroups.size()));
         mLogger.info("Rapport slutt");
     }
 
     private Pilot parsePilot(Elements cells) {
-        //Pilot
         Element cell = cells.get(INDEX_OF_TD_WITH_PILOT_INFO);
         Elements links = cell.select("a");
         Element firstLink = links.get(0);
