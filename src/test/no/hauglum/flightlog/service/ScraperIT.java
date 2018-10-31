@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.time.LocalDate;
+
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -26,10 +28,19 @@ public class ScraperIT {
 
     @Test
     public void scrapeNorwayFrom2011(){
-        for (int y = 2011; y < 2019; y++) {
+        for (int y = 2018; y < 2019; y++) {
 
             mScraper.scrapeNorway(y, y);
         }
+    }
+
+    @Test
+    public void scrapeOneDay(){
+
+
+            LocalDate localDate = LocalDate.ofYearDay(2018, 10);
+            mScraper.scrapeCountry("160", localDate, localDate.plusDays(20));
+
     }
 }
 

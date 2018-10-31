@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 @Service
 public class PilotService {
@@ -48,5 +49,13 @@ public class PilotService {
 
     public Long countAll() {
         return mPilotRepository.count();
+    }
+
+    public Pilot save(Pilot pilot) {
+        return mPilotRepository.save(pilot);
+    }
+
+    public Optional<Pilot> get(Long id){
+        return mPilotRepository.findById(id);
     }
 }

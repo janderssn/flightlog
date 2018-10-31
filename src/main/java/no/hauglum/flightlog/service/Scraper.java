@@ -58,6 +58,11 @@ public class Scraper {
         readDocuments(documents);
     }
 
+    public void scrapeCountry(String countryId, LocalDate date, LocalDate date1) {
+        List<DocumentWrapper> documents = mDocumentFactory.getLogForCountry(date, date1, countryId);
+        readDocuments(documents);
+    }
+
     public void scapeHovenLoen(int startYear) {
         scrapeTakeOff(startYear, HOVEN_LOEN);
     }
@@ -74,10 +79,10 @@ public class Scraper {
      * @param documents
      */
     private void readDocuments(List<DocumentWrapper> documents) {
-        HashMap<String, Pilot> pilots = new HashMap<String, Pilot>();
+       // HashMap<String, Pilot> pilots = new HashMap<String, Pilot>();
         List<FlightDay> days = new ArrayList<>();
         HashMap<String, DayPass> dayPasses = new HashMap<String, DayPass>();
-        HashMap<String, FlightGroup> flightGroups = new HashMap<>();
+        List<FlightGroup> flightGroups = new ArrayList<>();
 
         for (DocumentWrapper dw : documents) {
             Elements rows = mDocumentFactory.getRowsInTable(dw.getDocument());
@@ -92,7 +97,7 @@ public class Scraper {
                     Elements cells = row.select("td");
 
                     Pilot pilot = parsePilot(cells);
-                    pilots.put(pilot.getFlightlogId(), pilot);
+        //            pilots.put(pilot.getFlightlogId(), pilot);
                     pilot = mPilotService.updateOrCreate(pilot);
 
                     //Daypass
@@ -103,7 +108,7 @@ public class Scraper {
                     flightGroup.setDate(flightDay.getDate());
                     flightGroup.setPilot(pilot);
                     flightGroup.setNoOfFlights(parseNoOfFlights(cells));
-                    flightGroups.put(flightGroup.getFlightlogId(), flightGroup);
+                    flightGroups.add(flightGroup);
                     mFlightGroupService.updateOrCreate(flightGroup);
 
                 } else {
@@ -111,9 +116,11 @@ public class Scraper {
                 }
             }
         }
+
+        //mFlightGroupService.saveAll(flightGroups);
         mLogger.info("Sluttrapport" );
         mLogger.info("Antall flydager: " + days.size());
-        mLogger.info("Antall unike piloter: " + pilots.size());
+        //mLogger.info("Antall unike piloter: " + pilots.size());
         mLogger.info("Antall dagspass " + dayPasses.size());
         mLogger.info(("Antall grupper av turer " + flightGroups.size()));
         mLogger.info("Rapport slutt");
