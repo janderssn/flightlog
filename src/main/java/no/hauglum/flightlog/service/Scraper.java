@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -29,6 +30,8 @@ public class Scraper {
     private DocumentFactory mDocumentFactory;
     @Autowired
     private PilotService mPilotService;
+    @Autowired
+    private FlightGroupService mFlightGroupService;
 
     public static final int INDEX_OF_TD_WITH_COUNT_INFO = 3;
     public static final int INDEX_OF_TD_WITH_FLIGHT_INFO = 1;
@@ -41,8 +44,22 @@ public class Scraper {
         scrapeCountry("160", startYear);
     }
 
+    public void scrapeNorway(int startYear, int endYear) {
+        scrapeCountry("160", startYear, endYear);
+    }
+
     private void scrapeCountry(String countryId, int startYear) {
-        List<DocumentWrapper> documents = mDocumentFactory.getLogForCountry(countryId, startYear);
+        scrapeCountry(countryId, startYear, null);
+    }
+
+    private void scrapeCountry(String countryId, int startYear, Integer endYear) {
+        endYear = Optional.ofNullable(endYear).orElse(startYear);
+        List<DocumentWrapper> documents = mDocumentFactory.getLogForCountry(countryId, startYear, endYear);
+        readDocuments(documents);
+    }
+
+    public void scrapeCountry(String countryId, LocalDate date, LocalDate date1) {
+        List<DocumentWrapper> documents = mDocumentFactory.getLogForCountry(date, date1, countryId);
         readDocuments(documents);
     }
 
@@ -56,17 +73,22 @@ public class Scraper {
         readDocuments(documents);
     }
 
+    /**
+     * {@link DocumentFactory} produce documents based on the html-pages found in the Flightlog online.
+     * These docs will be read here and enteties will be extracted.
+     * @param documents
+     */
     private void readDocuments(List<DocumentWrapper> documents) {
-        HashMap<String, Pilot> pilots = new HashMap<String, Pilot>();
         List<FlightDay> days = new ArrayList<>();
         HashMap<String, DayPass> dayPasses = new HashMap<String, DayPass>();
-        HashMap<String, FlightGroup> flightGroups = new HashMap<>();
+        List<FlightGroup> flightGroups = new ArrayList<>();
 
         for (DocumentWrapper dw : documents) {
             Elements rows = mDocumentFactory.getRowsInTable(dw.getDocument());
 
             FlightDay flightDay = null;
             for (Element row : rows) {
+
                 if (isADayRow(row)) {
                     flightDay = new FlightDay(row.text());
                     days.add(flightDay);
@@ -74,33 +96,32 @@ public class Scraper {
                     Elements cells = row.select("td");
 
                     Pilot pilot = parsePilot(cells);
-                    pilots.put(pilot.getFlightlogId(), pilot);
-                    mPilotService.updateOrCreate(pilot);
+                    pilot = mPilotService.updateOrCreate(pilot);
 
-                    //Daypass
                     DayPass dayPass = new DayPass(pilot, flightDay);
                     dayPasses.put(flightDay.getDate() + "-" + pilot.getFlightlogId(), dayPass);
 
                     FlightGroup flightGroup = parseFlightGroup(cells);
+                    flightGroup.setDate(flightDay.getDate());
                     flightGroup.setPilot(pilot);
                     flightGroup.setNoOfFlights(parseNoOfFlights(cells));
-                    flightGroups.put(flightGroup.getFlightlogId(), flightGroup);
+                    flightGroups.add(flightGroup);
+                    mFlightGroupService.updateOrCreate(flightGroup);
 
                 } else {
                     mLogger.debug("some other row in table found");
                 }
             }
         }
+
         mLogger.info("Sluttrapport" );
         mLogger.info("Antall flydager: " + days.size());
-        mLogger.info("Antall unike piloter: " + pilots.size());
         mLogger.info("Antall dagspass " + dayPasses.size());
         mLogger.info(("Antall grupper av turer " + flightGroups.size()));
         mLogger.info("Rapport slutt");
     }
 
     private Pilot parsePilot(Elements cells) {
-        //Pilot
         Element cell = cells.get(INDEX_OF_TD_WITH_PILOT_INFO);
         Elements links = cell.select("a");
         Element firstLink = links.get(0);
@@ -122,7 +143,7 @@ public class Scraper {
 
         String tripId = parseTripId(flightCell);
 
-        //Todo parse how many trips in group "/2"
+
         Elements elementsByAttribute = flightCell.getElementsByAttribute("src");
         if(elementsByAttribute.size() == 1){
             mLogger.debug("No track");

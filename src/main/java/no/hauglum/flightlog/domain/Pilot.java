@@ -7,15 +7,9 @@ import javax.persistence.Id;
 import java.time.LocalDateTime;
 
 @Entity
-public class Pilot {
+public class Pilot extends BaseEntity{
 
     private String name;
-
-    @Id
-    @GeneratedValue(strategy=GenerationType.AUTO)
-    private Long id;
-
-    private LocalDateTime updatedTime;
 
     private String flightlogId;
 
@@ -24,7 +18,7 @@ public class Pilot {
 
     public Pilot(String flightlogId, String name) {
         this.flightlogId = flightlogId;
-        this.name = name;LocalDateTime.now();
+        this.name = name;
     }
 
     public void setName(String name) {
@@ -35,14 +29,6 @@ public class Pilot {
         this.flightlogId = flightlogId;
     }
 
-    public LocalDateTime getUpdatedTime() {
-        return updatedTime;
-    }
-
-    public void setUpdatedTime(LocalDateTime updatedTime) {
-        this.updatedTime = updatedTime;
-    }
-
     public String getName() {
         return name;
     }
@@ -51,19 +37,11 @@ public class Pilot {
         return flightlogId;
     }
 
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
     @Override
     public String toString() {
         return "Pilot{" +
                 "mName='" + name + '\'' +
-                ", id=" + id +
+                ", id=" + getId() +
                 ", flightlogId='" + flightlogId + '\'' +
                 '}';
     }

@@ -1,0 +1,26 @@
+H2 syntax
+Nice view of yearly count pr type
+SELECT year(date), type, sum(no_of_flights) FROM FLIGHT_GROUP group by type, year(date) order by type, year(date)
+
+check if pilot table is ok. should be the same number
+select count(*) from pilot;
+select count(*) from (select flightlog_id from pilot group by flightlog_id)
+
+Flightgroups pr pilot and type
+SELECT type, pilot_id, COUNT(pilot_id) FROM FLIGHT_GROUP GROUP BY TYPE, PILOT_ID
+
+unike piloter pr type i perioden fom 2011 tom 2018
+select count(type), type from (select type, name from pilot left join flight_group fg on fg.pilot_id = pilot.id group by type, pilot.id) group by type;
+
+Fordelt på år blir det slik:
+select count(type), type, year from (
+select type, name,  year(date) as year from pilot left join flight_group fg on fg.pilot_id = pilot.id group by type, pilot.id, year(date)
+ ) group by type, year order by year, type;
+
+ Og til slutt, de som har logget både SPG og PG i denne perioden fom 2011 tom 2018
+ select name from (select count(id) c, name from (
+ select type, name, pilot.id from pilot
+ left join flight_group fg on fg.pilot_id = pilot.id
+ where type in ('PG','SPG')
+ group by type, pilot.id order by name
+ ) group by id ) where c =2;

@@ -83,7 +83,24 @@ public class DocumentFactory {
         return table.select("tr");
     }
 
+    /**
+     * From given start to now.
+     * @param countryId
+     * @param startYear
+     * @return
+     */
     public List<DocumentWrapper> getLogForCountry(String countryId, int startYear) {
         return getLogForCountry(LocalDate.of(startYear, 1, 1), LocalDate.now(), countryId);
+    }
+
+    /**
+     * From giveb start year 1.1 to given end year 31.12
+     * @param countryId
+     * @param startYear
+     * @param endYear
+     * @return
+     */
+    public List<DocumentWrapper> getLogForCountry(String countryId, int startYear, int endYear) {
+        return getLogForCountry(LocalDate.of(startYear, 1, 1), LocalDate.of(endYear,12,31), countryId);
     }
 }
