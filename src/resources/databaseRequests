@@ -24,3 +24,15 @@ select type, name,  year(date) as year from pilot left join flight_group fg on f
  where type in ('PG','SPG')
  group by type, pilot.id order by name
  ) group by id ) where c =2;
+
+
+ antall dagskort i databasen. skiller ikke på flysted. scrap et flysted og denne blir riktig
+ select count(*) from (SELECT pilot_id, date, sum(no_of_flights) FROM FLIGHT_GROUP where year(date) = 2018 group by date, pilot_id order by pilot_id)
+
+ antall årskort ellers som over (dagskort)
+ select count(*) from (SELECT pilot_id FROM FLIGHT_GROUP where year(date) = 2018 group by pilot_id order by pilot_id)
+
+ Årskort og dagskort ideell fordeling gitt årskort på > 9 flydager
+ select count(*), card FROM (select count(*), CASE WHEN count(*)<10 THEN 'Dagskort' ELSE 'Årskort' END card  from (
+ SELECT pilot_id, date FROM FLIGHT_GROUP where year(date) = 2018 group by date, pilot_id
+ ) group by pilot_id order by count(*)) group by card
