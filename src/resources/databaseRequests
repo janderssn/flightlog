@@ -32,7 +32,8 @@ select type, name,  year(date) as year from pilot left join flight_group fg on f
  antall årskort ellers som over (dagskort)
  select count(*) from (SELECT pilot_id FROM FLIGHT_GROUP where year(date) = 2018 group by pilot_id order by pilot_id)
 
- Årskort og dagskort ideell fordeling gitt årskort på > 9 flydager
- select count(*), card FROM (select count(*), CASE WHEN count(*)<10 THEN 'Dagskort' ELSE 'Årskort' END card  from (
- SELECT pilot_id, date FROM FLIGHT_GROUP where year(date) = 2018 group by date, pilot_id
- ) group by pilot_id order by count(*)) group by card
+select count(*), card FROM (
+  select count(*), CASE WHEN count(*)<10 THEN 'Dagskort' ELSE 'Årskort' END card  from (
+    SELECT pilot_id, date FROM FLIGHT_GROUP where year(date) = 2018 group by date, pilot_id order by pilot_id
+  ) group by pilot_id
+) group by card
