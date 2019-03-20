@@ -28,7 +28,7 @@ public class ScraperIT {
 
     @Test
     public void scrapeNorwayFrom2011(){
-        for (int y = 2018; y < 2019; y++) {
+        for (int y = 2018; y < 2020; y++) {
 
             mScraper.scrapeNorway(y, y);
         }

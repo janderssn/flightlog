@@ -11,3 +11,8 @@ It's also an web app with a simple status view
 
 Google Cloud Platform
 Name FlightLogReporter
+    mvn appengine:update
+
+
+
+    vaadin med https://www.chartjs.org/
