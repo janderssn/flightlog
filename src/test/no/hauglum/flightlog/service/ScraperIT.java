@@ -1,5 +1,6 @@
 package no.hauglum.flightlog.service;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +26,19 @@ public class ScraperIT {
     public void scrapeNorway(){
         mScraper.scrapeNorway(2015);
     }
+
+    @Test
+    @Ignore("to be done")
+    public void scrapeAllCountries(){
+
+
+    }
+
+    @Test
+    public void loadCountriesToDb(){
+        mScraper.loadCountriesToDb();
+    }
+
 
     @Test
     public void scrapeNorwayFrom2011(){

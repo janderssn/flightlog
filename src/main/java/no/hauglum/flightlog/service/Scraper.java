@@ -4,6 +4,7 @@ import no.hauglum.flightlog.domain.DayPass;
 import no.hauglum.flightlog.domain.FlightDay;
 import no.hauglum.flightlog.domain.FlightGroup;
 import no.hauglum.flightlog.domain.Pilot;
+import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
@@ -39,6 +40,19 @@ public class Scraper {
 
     public static final String USER_ID = "user_id";
     public static final String TRIP_ID = "trip_id";
+
+
+    public void loadCountriesToDb() {
+        for (int countryId = 0; countryId < 250; countryId++) { //TODO 250?
+            Document document = mDocumentFactory.scrape("https://www.flightlog.org/fl.html?l=1&a=48&country_id=" + countryId);
+            Elements elementsMatchingText = document.getElementsMatchingText("Flights done by pilots from");
+            String h4 = document.select("H4").get(0).text();
+            String country = h4.substring("Flights done by pilots from ".length());
+            mLogger.debug(country + " " + countryId);
+
+
+        }
+    }
 
     public void scrapeNorway(int startYear) {
         scrapeCountry("160", startYear);
