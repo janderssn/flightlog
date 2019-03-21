@@ -1,9 +1,6 @@
 package no.hauglum.flightlog.service;
 
-import no.hauglum.flightlog.domain.DayPass;
-import no.hauglum.flightlog.domain.FlightDay;
-import no.hauglum.flightlog.domain.FlightGroup;
-import no.hauglum.flightlog.domain.Pilot;
+import no.hauglum.flightlog.domain.*;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -33,6 +30,8 @@ public class Scraper {
     private PilotService mPilotService;
     @Autowired
     private FlightGroupService mFlightGroupService;
+    @Autowired
+    private CountryService mCountryService;
 
     public static final int INDEX_OF_TD_WITH_COUNT_INFO = 3;
     public static final int INDEX_OF_TD_WITH_FLIGHT_INFO = 1;
@@ -47,9 +46,10 @@ public class Scraper {
             Document document = mDocumentFactory.scrape("https://www.flightlog.org/fl.html?l=1&a=48&country_id=" + countryId);
             Elements elementsMatchingText = document.getElementsMatchingText("Flights done by pilots from");
             String h4 = document.select("H4").get(0).text();
-            String country = h4.substring("Flights done by pilots from ".length());
-            mLogger.debug(country + " " + countryId);
+            String countryName = h4.substring("Flights done by pilots from ".length());
+            mLogger.debug(countryName + " " + countryId);
 
+            mCountryService.createOrUpdate(new Country(String.valueOf(countryId), countryName));
 
         }
     }
