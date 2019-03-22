@@ -34,4 +34,8 @@ public class CountryService {
     public long countAll() {
         return countryRepository.count();
     }
+
+    public Country findByName(String name) {
+        return countryRepository.findByName(name);
+    }
 }

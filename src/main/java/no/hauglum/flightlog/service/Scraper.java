@@ -1,5 +1,6 @@
 package no.hauglum.flightlog.service;
 
+import com.google.common.collect.ImmutableMap;
 import no.hauglum.flightlog.domain.*;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -10,10 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -49,7 +47,8 @@ public class Scraper {
             String countryName = h4.substring("Flights done by pilots from ".length());
             mLogger.debug(countryName + " " + countryId);
 
-            mCountryService.createOrUpdate(new Country(String.valueOf(countryId), countryName));
+            if(countryName != "")
+                mCountryService.createOrUpdate(new Country(String.valueOf(countryId), countryName));
 
         }
     }
@@ -139,9 +138,15 @@ public class Scraper {
         Element cell = cells.get(INDEX_OF_TD_WITH_PILOT_INFO);
         Elements links = cell.select("a");
         Element firstLink = links.get(0);
-        String flightlogId = parseFlightlogId(firstLink);
-        String name = parseName(firstLink);
-        return new Pilot(flightlogId, name);
+        String pilotId = parseFlightlogId(firstLink);
+        String pilotName = parseName(firstLink);
+        Country country = parseCountry(links);
+        return new Pilot(pilotId, pilotName, country);
+    }
+
+    private Country parseCountry(Elements links) {
+        Element lastElement = links.get(links.size() - 1);
+        return mCountryService.findByName(lastElement.text());
     }
 
     private int parseNoOfFlights(Elements cells) {
@@ -169,28 +174,29 @@ public class Scraper {
             throw new IllegalArgumentException("More images than system handles");
         }
 
-        HashMap<String, FlightGroup.Type> imageNameToType = new HashMap<>();
-        imageNameToType.put("img/kkpg-pg.bmp", PG);
-        imageNameToType.put("img/hg.gif", HG);
-        imageNameToType.put("img/hg2.gif", HG2);
-        imageNameToType.put("img/kkpg-ppg.bmp", PPG);
-        imageNameToType.put("img/hg-p.gif", PHG);
-        imageNameToType.put("img/sp.gif", SAILPLAIN);
-        imageNameToType.put("img/kkpg-ba.bmp", BALOON);
-        imageNameToType.put("img/kkpg-spg.bmp", SPG);
-        imageNameToType.put("img/kkpg-tp.bmp", TANDEM_PG);
-
-
         String srcImg = elementsByAttribute.last().attr("src");
         FlightGroup flightGroup = new FlightGroup(tripId);
         if(srcImg.contains("track")){
             throw new IllegalStateException("Wrong image selected for trip type intepretion");
         }
-        if (imageNameToType.get(srcImg) == null)
+
+        if (FLIGHT_IMAGE_NAME_TO_TYPE.get(srcImg) == null)
             mLogger.error("type based on image " + srcImg + " not found");
-        flightGroup.setType(imageNameToType.get(srcImg));
+        flightGroup.setType(FLIGHT_IMAGE_NAME_TO_TYPE.get(srcImg));
         return flightGroup;
     }
+
+    static final Map<String, FlightGroup.Type> FLIGHT_IMAGE_NAME_TO_TYPE = ImmutableMap.<String, FlightGroup.Type>builder()
+    .put("img/kkpg-pg.bmp", PG)
+    .put("img/hg.gif", HG)
+    .put("img/hg2.gif", HG2)
+    .put("img/kkpg-ppg.bmp", PPG)
+    .put("img/hg-p.gif", PHG)
+    .put("img/sp.gif", SAILPLAIN)
+    .put("img/kkpg-ba.bmp", BALOON)
+    .put("img/kkpg-spg.bmp", SPG)
+    .put("img/kkpg-tp.bmp", TANDEM_PG)
+            .build();
 
     protected boolean isADayRow(Element element) {
         String text = element.text();

@@ -1,9 +1,6 @@
 package no.hauglum.flightlog.domain;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
@@ -13,12 +10,20 @@ public class Pilot extends BaseEntity{
 
     private String flightlogId;
 
+    @ManyToOne
+    private Country country;
+
     protected Pilot() {
     }
 
     public Pilot(String flightlogId, String name) {
         this.flightlogId = flightlogId;
         this.name = name;
+    }
+
+    public Pilot(String pilotId, String pilotName, Country country) {
+        this(pilotId, pilotName);
+        this.country = country;
     }
 
     public void setName(String name) {
