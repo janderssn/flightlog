@@ -38,4 +38,8 @@ public class CountryService {
     public Country findByName(String name) {
         return countryRepository.findByName(name);
     }
+
+    public Country findByCountryId(String country_id) {
+        return countryRepository.findByCountryId(country_id);
+    }
 }

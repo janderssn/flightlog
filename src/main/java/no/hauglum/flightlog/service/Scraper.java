@@ -1,6 +1,7 @@
 package no.hauglum.flightlog.service;
 
 import com.google.common.collect.ImmutableMap;
+import no.hauglum.flightlog.FatalException;
 import no.hauglum.flightlog.domain.*;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -16,7 +17,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static no.hauglum.flightlog.domain.FlightGroup.Type.*;
-import static no.hauglum.flightlog.domain.TakeOff.HOVEN_LOEN;
+import static no.hauglum.flightlog.domain.TakeOffs.HOVEN_LOEN;
 
 @Service
 public class Scraper {
@@ -30,6 +31,8 @@ public class Scraper {
     private FlightGroupService mFlightGroupService;
     @Autowired
     private CountryService mCountryService;
+    @Autowired
+    private TakeOffService mTakeOffService ;
 
     public static final int INDEX_OF_TD_WITH_COUNT_INFO = 3;
     public static final int INDEX_OF_TD_WITH_FLIGHT_INFO = 1;
@@ -121,7 +124,18 @@ public class Scraper {
                     flightGroups.add(flightGroup);
                     mFlightGroupService.updateOrCreate(flightGroup);
 
-                } else {
+                } else if (isATakeOffRow(row)) {
+                    String name = row.getElementsByAttribute("href").text();
+                    String start_id = getValue(row, "start_id");
+
+                    String country_id = getValue(row, "country_id");
+                    Country country = mCountryService.findByCountryId(country_id);
+                        if(country == null)
+                            throw new FatalException("Have u forgot to load the countries?");
+                    TakeOff takeOff = new TakeOff(start_id, name, country);
+                    takeOff = mTakeOffService.createOrUpdate(takeOff);
+                    mLogger.debug("takeOff: " + takeOff.getName());
+                }else {
                     mLogger.debug("some other row in table found");
                 }
             }
@@ -132,6 +146,10 @@ public class Scraper {
         mLogger.info("Antall dagspass " + dayPasses.size());
         mLogger.info(("Antall grupper av turer " + flightGroups.size()));
         mLogger.info("Rapport slutt");
+    }
+
+    private boolean isATakeOffRow(Element row) {
+        return row.getElementsByAttribute("href").attr("href").contains("start_id");
     }
 
     private Pilot parsePilot(Elements cells) {
@@ -223,8 +241,12 @@ public class Scraper {
 
     private String getValue(Element element, String id) {
         String href = element.getElementsByAttribute("href").attr("href");
-        int indexOf = href.indexOf(id);
-        String substring = href.substring(indexOf + id.length() + 1);
+        return getValue(href, id);
+    }
+
+    private String getValue(String source, String key) {
+        int indexOf = source.indexOf(key);
+        String substring = source.substring(indexOf + key.length() + 1);
         Pattern p = Pattern.compile("[^0-9]");
         Matcher m = p.matcher(substring);
         if (m.find()) {
