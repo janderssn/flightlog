@@ -1,5 +1,7 @@
 package no.hauglum.flightlog.service;
 
+import no.hauglum.flightlog.domain.Country;
+import no.hauglum.flightlog.repository.CountryRepository;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -16,6 +18,9 @@ public class ScraperIT {
 
     @Autowired
     private Scraper mScraper;
+
+    @Autowired
+    private CountryRepository mCountryRepository;
 
     @Test
     public void scrapeHovenLoen(){
@@ -49,12 +54,30 @@ public class ScraperIT {
     }
 
     @Test
-    public void scrapeOneDay(){
+    public void scrapeSomeDaysInNorway(){
+        String countryId = "160";
+        int year = 2018;
+        int dayOfYear = 10;
+        int offset = 5;
 
+        scrapeSomeDays(countryId, year, dayOfYear, offset);
+    }
 
-            LocalDate localDate = LocalDate.ofYearDay(2018, 10);
-            mScraper.scrapeCountry("160", localDate, localDate.plusDays(5));
+    @Test
+    public void scrapeSomeDaysAllCountries(){
 
+        int year = 2018;
+        int dayOfYear = 10;
+        int offset = 5;
+
+        for (Country c : mCountryRepository.findAll()){
+            scrapeSomeDays(c.getCountryId(), year, dayOfYear, offset);
+        }
+    }
+
+    private void scrapeSomeDays(String countryId, int year, int dayOfYear, int offset) {
+        LocalDate localDate = LocalDate.ofYearDay(year, dayOfYear);
+        mScraper.scrapeCountry(countryId, localDate, localDate.plusDays(offset));
     }
 }
 

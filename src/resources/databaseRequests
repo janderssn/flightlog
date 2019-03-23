@@ -37,3 +37,13 @@ select count(*), card FROM (
     SELECT pilot_id, date FROM FLIGHT_GROUP where year(date) = 2018 group by date, pilot_id order by pilot_id
   ) group by pilot_id
 ) group by card
+
+
+Turer hvor hvem og nationalitet
+        SELECT fg.FLIGHTLOG_ID , fg.type, fg.PILOT_ID , p.name, cp.name kommer_fra, to.name, fg.date, cto.name flydd_i
+        FROM FLIGHT_GROUP fg
+        left join TAKE_OFF to on to.id  = fg.TAKE_OFF_ID
+        left join  PILOT p on p.id = fg.PILOT_ID
+        left join COUNTRY cto on cto.id = to.COUNTRY_ID
+        left join COUNTRY cp on cp.id = p.COUNTRY_ID
+        where to.id is not null
