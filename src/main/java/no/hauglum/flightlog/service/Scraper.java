@@ -40,6 +40,7 @@ public class Scraper {
 
     public static final String USER_ID = "user_id";
     public static final String TRIP_ID = "trip_id";
+    private TakeOff lastTakeOff;
 
 
     public void loadCountriesToDb() {
@@ -95,11 +96,10 @@ public class Scraper {
      * @param documents
      */
     private void readDocuments(List<DocumentWrapper> documents) {
-        List<FlightDay> days = new ArrayList<>();
-        HashMap<String, DayPass> dayPasses = new HashMap<String, DayPass>();
-        List<FlightGroup> flightGroups = new ArrayList<>();
 
         for (DocumentWrapper dw : documents) {
+            lastTakeOff = null;
+
             Elements rows = mDocumentFactory.getRowsInTable(dw.getDocument());
 
             FlightDay flightDay = null;
@@ -107,7 +107,18 @@ public class Scraper {
 
                 if (isADayRow(row)) {
                     flightDay = new FlightDay(row.text());
-                    days.add(flightDay);
+                } else if (isATakeOffRow(row)) {
+                    String name = row.getElementsByAttribute("href").text();
+                    String start_id = getValue(row, "start_id");
+
+                    String country_id = getValue(row, "country_id");
+                    Country country = mCountryService.findByCountryId(country_id);
+                    if(country == null)
+                        throw new FatalException("Have u forgot to load the countries?");
+                    TakeOff takeOff = new TakeOff(start_id, name, country);
+                    takeOff = mTakeOffService.createOrUpdate(takeOff);
+                    lastTakeOff = takeOff;
+                    mLogger.debug("takeOff: " + takeOff.getName());
                 } else if (isAFlightRow(row)) {
                     Elements cells = row.select("td");
 
@@ -115,37 +126,20 @@ public class Scraper {
                     pilot = mPilotService.updateOrCreate(pilot);
 
                     DayPass dayPass = new DayPass(pilot, flightDay);
-                    dayPasses.put(flightDay.getDate() + "-" + pilot.getFlightlogId(), dayPass);
 
                     FlightGroup flightGroup = parseFlightGroup(cells);
                     flightGroup.setDate(flightDay.getDate());
                     flightGroup.setPilot(pilot);
                     flightGroup.setNoOfFlights(parseNoOfFlights(cells));
-                    flightGroups.add(flightGroup);
+                    flightGroup.setTakeOff(lastTakeOff);
                     mFlightGroupService.updateOrCreate(flightGroup);
 
-                } else if (isATakeOffRow(row)) {
-                    String name = row.getElementsByAttribute("href").text();
-                    String start_id = getValue(row, "start_id");
 
-                    String country_id = getValue(row, "country_id");
-                    Country country = mCountryService.findByCountryId(country_id);
-                        if(country == null)
-                            throw new FatalException("Have u forgot to load the countries?");
-                    TakeOff takeOff = new TakeOff(start_id, name, country);
-                    takeOff = mTakeOffService.createOrUpdate(takeOff);
-                    mLogger.debug("takeOff: " + takeOff.getName());
                 }else {
                     mLogger.debug("some other row in table found");
                 }
             }
         }
-
-        mLogger.info("Sluttrapport" );
-        mLogger.info("Antall flydager: " + days.size());
-        mLogger.info("Antall dagspass " + dayPasses.size());
-        mLogger.info(("Antall grupper av turer " + flightGroups.size()));
-        mLogger.info("Rapport slutt");
     }
 
     private boolean isATakeOffRow(Element row) {

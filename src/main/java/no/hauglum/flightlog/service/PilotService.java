@@ -37,6 +37,7 @@ public class PilotService {
         if(oneByFlightlogId != null){
             oneByFlightlogId.setUpdatedTime(LocalDateTime.now());
             oneByFlightlogId.setName(pilot.getName());
+            oneByFlightlogId.setCountry(pilot.getCountry());
             mPilotRepository.save(oneByFlightlogId);
             mLogger.debug("One Pilot updated");
         } else {

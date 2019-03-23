@@ -30,6 +30,7 @@ public class TakeOffService {
     private void updateProperties(TakeOff source, TakeOff target) {
         target.setUpdatedTime(LocalDateTime.now());
         target.setName(source.getName());
+        target.setCountry(source.getCountry());
     }
 
 

@@ -53,7 +53,7 @@ public class ScraperIT {
 
 
             LocalDate localDate = LocalDate.ofYearDay(2018, 10);
-            mScraper.scrapeCountry("160", localDate, localDate.plusDays(20));
+            mScraper.scrapeCountry("160", localDate, localDate.plusDays(5));
 
     }
 }
