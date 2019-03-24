@@ -67,8 +67,8 @@ public class ScraperIT {
     public void scrapeSomeDaysAllCountries(){
 
         int year = 2018;
-        int dayOfYear = 10;
-        int offset = 5;
+        int dayOfYear = 1;
+        int offset = 365;
 
         for (Country c : mCountryRepository.findAll()){
             scrapeSomeDays(c.getCountryId(), year, dayOfYear, offset);
