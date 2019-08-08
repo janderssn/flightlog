@@ -3,6 +3,7 @@ package no.hauglum.flightlog.service;
 import com.google.common.collect.ImmutableMap;
 import no.hauglum.flightlog.FatalException;
 import no.hauglum.flightlog.domain.*;
+import no.hauglum.flightlog.service.scraper.ScrapeJobService;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -34,6 +35,8 @@ public class Scraper {
     private CountryService mCountryService;
     @Autowired
     private TakeOffService mTakeOffService ;
+    @Autowired
+    private ScrapeJobService mScrapeJobService;
 
     public static final int EXPECTED_NO_OF_CUNTRIES = 250;
     public static final int INDEX_OF_TD_WITH_COUNT_INFO = 3;
@@ -48,6 +51,7 @@ public class Scraper {
     @Scheduled(cron="${findNewFlightsCron}")
     protected void findNewFlights(){
         mLogger.info("Start scraping");
+        TODO finn siste scrape job og fortsett der den slapp
         loadCountriesToDb();
         mLogger.info("Done scraping");
     }
