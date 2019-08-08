@@ -66,7 +66,7 @@ public class ScraperIT {
     @Test
     public void scrapeSomeDaysAllCountries(){
 
-        int year = 2018;
+        int year = 2016;
         int dayOfYear = 1;
         int offset = 365;
 
