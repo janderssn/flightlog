@@ -61,7 +61,7 @@ utenlandsturer av norske piloter:
         order by fg.FLIGHTLOG_ID desc
 
 Hvor mange flyturer av nordmenn i utlandet pr år
-        SELECT  YEAR(fg.date), SUM(fg.NO_OF_FLIGHTS)
+        SELECT  YEAR(fg.date), SUM(fg.NO_OF_FLIGHTS), fg.TYPE
         FROM FLIGHT_GROUP fg
         left join TAKE_OFF to on to.id  = fg.TAKE_OFF_ID
         left join  PILOT p on p.id = fg.PILOT_ID
@@ -70,4 +70,17 @@ Hvor mange flyturer av nordmenn i utlandet pr år
         where to.id is not null
             and cp.COUNTRY_ID  = 160
             and to.COUNTRY_ID <> p.COUNTRY_ID
-        GROUP  BY YEAR(fg.date)
+        GROUP  BY YEAR(fg.date) , fg.TYPE
+order by YEAR(fg.date)
+
+Her kommer unike norske piloter med flyturer i utlandet (pr år)
+        SELECT  YEAR(fg.date), COUNT(DISTINCT(p.id))
+        FROM FLIGHT_GROUP fg
+        left join TAKE_OFF to on to.id  = fg.TAKE_OFF_ID
+        left join  PILOT p on p.id = fg.PILOT_ID
+        left join COUNTRY cto on cto.id = to.COUNTRY_ID
+        left join COUNTRY cp on cp.id = p.COUNTRY_ID
+        where to.id is not null
+            and cp.COUNTRY_ID  = 160
+            and to.COUNTRY_ID <> p.COUNTRY_ID
+GROUP BY YEAR(fg.date)
