@@ -18,6 +18,9 @@ public class FlightGroup extends BaseEntity{
 
     private int noOfFlights;
 
+    @ManyToOne
+    private TakeOff takeOff;
+
     protected FlightGroup() {
     }
 
@@ -61,6 +64,14 @@ public class FlightGroup extends BaseEntity{
 
     public int getNoOfFlights() {
         return noOfFlights;
+    }
+
+    public void setTakeOff(TakeOff takeOff) {
+        this.takeOff = takeOff;
+    }
+
+    public TakeOff getTakeOff() {
+        return takeOff;
     }
 
     public enum Type  {

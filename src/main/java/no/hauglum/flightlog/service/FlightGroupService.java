@@ -33,6 +33,7 @@ public class FlightGroupService {
             oneByFlightlogId.setUpdatedTime(LocalDateTime.now());
             oneByFlightlogId.setNoOfFlights(flightGroup.getNoOfFlights());
             oneByFlightlogId.setType(flightGroup.getType());
+            oneByFlightlogId.setTakeOff(flightGroup.getTakeOff());
             mFlightGroupRepository.save(oneByFlightlogId);
             mLogger.debug("One FlightGroup updated");
         } else {

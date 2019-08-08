@@ -18,6 +18,9 @@ import java.util.List;
 
 import static java.time.format.DateTimeFormatter.ISO_LOCAL_DATE;
 
+/**
+ * Reads www.flightlog.org using jSoup and creates {@link Document}
+ */
 @Service
 public class DocumentFactory {
     private Logger mLogger = LoggerFactory.getLogger(this.getClass().getName());
