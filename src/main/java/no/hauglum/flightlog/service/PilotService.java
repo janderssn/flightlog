@@ -25,11 +25,6 @@ public class PilotService {
         return  mPilotRepository.findAll();
     }
 
-    @Scheduled(cron="${findNewFlightsCron}")
-    protected void findNewFlights(){
-        mLogger.info("Start scraping");
-        mLogger.info("Done scraping");
-    }
 
     @Transactional
     public Pilot updateOrCreate(Pilot pilot) {

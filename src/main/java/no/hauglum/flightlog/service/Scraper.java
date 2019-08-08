@@ -9,6 +9,7 @@ import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -34,6 +35,7 @@ public class Scraper {
     @Autowired
     private TakeOffService mTakeOffService ;
 
+    public static final int EXPECTED_NO_OF_CUNTRIES = 250;
     public static final int INDEX_OF_TD_WITH_COUNT_INFO = 3;
     public static final int INDEX_OF_TD_WITH_FLIGHT_INFO = 1;
     public static final int INDEX_OF_TD_WITH_PILOT_INFO = 2;
@@ -43,17 +45,30 @@ public class Scraper {
     private TakeOff lastTakeOff;
 
 
+    @Scheduled(cron="${findNewFlightsCron}")
+    protected void findNewFlights(){
+        mLogger.info("Start scraping");
+        loadCountriesToDb();
+        mLogger.info("Done scraping");
+    }
+
     public void loadCountriesToDb() {
-        for (int countryId = 0; countryId < 250; countryId++) { //TODO 250?
-            Document document = mDocumentFactory.scrape("https://www.flightlog.org/fl.html?l=1&a=48&country_id=" + countryId);
-            Elements elementsMatchingText = document.getElementsMatchingText("Flights done by pilots from");
-            String h4 = document.select("H4").get(0).text();
-            String countryName = h4.substring("Flights done by pilots from ".length());
-            mLogger.debug(countryName + " " + countryId);
+        mLogger.info("Starting loading countries");
+        long noOfCuntries = mCountryService.countAll();
+        if(noOfCuntries < EXPECTED_NO_OF_CUNTRIES){
+            for (int countryId = 0; countryId < EXPECTED_NO_OF_CUNTRIES; countryId++) { //TODO 250?
+                Document document = mDocumentFactory.scrape("https://www.flightlog.org/fl.html?l=1&a=48&country_id=" + countryId);
+                Elements elementsMatchingText = document.getElementsMatchingText("Flights done by pilots from");
+                String h4 = document.select("H4").get(0).text();
+                String countryName = h4.substring("Flights done by pilots from ".length());
+                mLogger.debug(countryName + " " + countryId);
 
-            if(countryName != "")
-                mCountryService.createOrUpdate(new Country(String.valueOf(countryId), countryName));
+                if(countryName != "")
+                    mCountryService.createOrUpdate(new Country(String.valueOf(countryId), countryName));
 
+            }
+        }else {
+            mLogger.info("All countries are already loaded");
         }
     }
 
@@ -199,15 +214,15 @@ public class Scraper {
     }
 
     static final Map<String, FlightGroup.Type> FLIGHT_IMAGE_NAME_TO_TYPE = ImmutableMap.<String, FlightGroup.Type>builder()
-    .put("img/kkpg-pg.bmp", PG)
-    .put("img/hg.gif", HG)
-    .put("img/hg2.gif", HG2)
-    .put("img/kkpg-ppg.bmp", PPG)
-    .put("img/hg-p.gif", PHG)
-    .put("img/sp.gif", SAILPLAIN)
-    .put("img/kkpg-ba.bmp", BALOON)
-    .put("img/kkpg-spg.bmp", SPG)
-    .put("img/kkpg-tp.bmp", TANDEM_PG)
+            .put("img/kkpg-pg.bmp", PG)
+            .put("img/hg.gif", HG)
+            .put("img/hg2.gif", HG2)
+            .put("img/kkpg-ppg.bmp", PPG)
+            .put("img/hg-p.gif", PHG)
+            .put("img/sp.gif", SAILPLAIN)
+            .put("img/kkpg-ba.bmp", BALOON)
+            .put("img/kkpg-spg.bmp", SPG)
+            .put("img/kkpg-tp.bmp", TANDEM_PG)
             .build();
 
     protected boolean isADayRow(Element element) {
