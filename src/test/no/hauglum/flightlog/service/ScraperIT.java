@@ -29,13 +29,12 @@ public class ScraperIT {
 
     @Test
     public void scrapeNorway(){
-        mScraper.scrapeNorway(2015);
+        mScraper.scrapeNorway(2017);
     }
 
     @Test
     @Ignore("to be done")
     public void scrapeAllCountries(){
-
 
     }
 
@@ -44,11 +43,9 @@ public class ScraperIT {
         mScraper.loadCountriesToDb();
     }
 
-
     @Test
-    public void scrapeNorwayFrom2011(){
-        for (int y = 2018; y < 2020; y++) {
-
+    public void scrapeNorwayStartYearEndYear(){
+        for (int y = 2017; y < 2019; y++){
             mScraper.scrapeNorway(y, y);
         }
     }
