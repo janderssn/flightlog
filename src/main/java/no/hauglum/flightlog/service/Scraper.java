@@ -56,7 +56,7 @@ public class Scraper {
         mLogger.info("Start scraping");
         //TODO finn siste scrape job og fortsett der den slapp
         loadCountriesToDb();
-        scrapeTakeOff(2020, "203","1486");
+        scrapeTakeOff(2021, "203","1486");
         mLogger.info("Done scraping");
     }
 
@@ -129,13 +129,16 @@ public class Scraper {
 
             Elements rows = mDocumentFactory.getRowsInTable(dw.getDocument());
 
+            String name = dw.getDocument().select("h3").text();
+            name = name.replace("Turer - ", "");
+
             FlightDay flightDay = null;
             for (Element row : rows) {
 
                 if (isADayRow(row)) {
                     flightDay = new FlightDay(row.text());
                 } else if (isATakeOffRow(row)) {
-                    String name = row.getElementsByAttribute("href").text();
+                    //String name = row.getElementsByAttribute("href").text();
                     String start_id = getValue(row, "start_id");
 
                     String country_id = getValue(row, "country_id");
