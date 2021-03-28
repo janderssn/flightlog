@@ -1,4 +1,4 @@
-package no.hauglum.flightlog;
+package no.hauglum.flightlog.controller;
 
 import de.micromata.opengis.kml.v_2_2_0.Coordinate;
 import no.hauglum.flightlog.domain.FlightGroup;
@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
-public class HelloController {
+public class FlightController {
 
     @Autowired
     private PilotService mPilotService;

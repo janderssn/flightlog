@@ -1,4 +1,4 @@
-package no.hauglum.flightlog;
+package no.hauglum.flightlog.exception;
 
 public class FatalException extends RuntimeException {
     public FatalException(String message, Throwable e) {

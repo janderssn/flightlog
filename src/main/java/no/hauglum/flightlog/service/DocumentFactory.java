@@ -1,6 +1,6 @@
 package no.hauglum.flightlog.service;
 
-import no.hauglum.flightlog.FatalException;
+import no.hauglum.flightlog.exception.FatalException;
 import org.jsoup.HttpStatusException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;

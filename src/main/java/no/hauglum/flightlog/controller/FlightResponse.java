@@ -1,4 +1,4 @@
-package no.hauglum.flightlog;
+package no.hauglum.flightlog.controller;
 
 public class FlightResponse {
 

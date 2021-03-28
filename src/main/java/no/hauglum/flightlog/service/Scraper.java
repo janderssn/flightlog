@@ -1,7 +1,7 @@
 package no.hauglum.flightlog.service;
 
 import com.google.common.collect.ImmutableMap;
-import no.hauglum.flightlog.FatalException;
+import no.hauglum.flightlog.exception.FatalException;
 import no.hauglum.flightlog.domain.*;
 import no.hauglum.flightlog.service.scraper.ScrapeJobService;
 import org.jsoup.nodes.Document;
