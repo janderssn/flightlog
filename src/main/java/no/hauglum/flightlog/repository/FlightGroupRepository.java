@@ -9,4 +9,7 @@ public interface FlightGroupRepository extends CrudRepository<FlightGroup, Long>
 
 
     FlightGroup findOneByFlightlogId(String flightlogId);
+
+    List<FlightGroup> findByTakeOffIdAndYear(String takeOffId, Integer year);
+
 }

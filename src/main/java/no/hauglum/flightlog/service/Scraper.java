@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.regex.Matcher;
@@ -40,6 +41,7 @@ public class Scraper {
 
     public static final int EXPECTED_NO_OF_CUNTRIES = 250;
     public static final int INDEX_OF_TD_WITH_COUNT_INFO = 3;
+    public static final int INDEX_OF_TD_WITH_DISTANCE_INFO = 4;
     public static final int INDEX_OF_TD_WITH_FLIGHT_INFO = 1;
     public static final int INDEX_OF_TD_WITH_PILOT_INFO = 2;
 
@@ -51,7 +53,7 @@ public class Scraper {
     @Scheduled(cron="${findNewFlightsCron}")
     protected void findNewFlights(){
         mLogger.info("Start scraping");
-        TODO finn siste scrape job og fortsett der den slapp
+        //TODO finn siste scrape job og fortsett der den slapp
         loadCountriesToDb();
         mLogger.info("Done scraping");
     }
@@ -100,12 +102,17 @@ public class Scraper {
     }
 
     public void scapeHovenLoen(int startYear) {
-        scrapeTakeOff(startYear, HOVEN_LOEN);
+        scrapeTakeOff(startYear, "160", HOVEN_LOEN);
     }
 
-    public void scrapeTakeOff(int startYear, String takeOffId) {
+    //@PostConstruct
+    public void scrapeAre() {
+        scrapeTakeOff(2001, "203","431");
+    }
+
+    public void scrapeTakeOff(int startYear, String countryId, String takeOffId) {
         mLogger.info("Rapport for startsted med id " + takeOffId);
-        List<DocumentWrapper> documents = mDocumentFactory.getLogForTakeOff(startYear, takeOffId);
+        List<DocumentWrapper> documents = mDocumentFactory.getLogForTakeOff(startYear, countryId, takeOffId);
         readDocuments(documents);
     }
 
@@ -150,6 +157,8 @@ public class Scraper {
                     flightGroup.setDate(flightDay.getDate());
                     flightGroup.setPilot(pilot);
                     flightGroup.setNoOfFlights(parseNoOfFlights(cells));
+                    flightGroup.setDistanceInKm(parseDistance(cells));
+                    flightGroup.setDurationInMinutes(parseDuration(cells));
                     flightGroup.setTakeOff(lastTakeOff);
                     mFlightGroupService.updateOrCreate(flightGroup);
 
@@ -187,6 +196,22 @@ public class Scraper {
         return Integer.parseInt(text.substring(text.indexOf("/")+2));
     }
 
+    private int parseDuration(Elements cells) {
+        Element durationCell = cells.get(INDEX_OF_TD_WITH_COUNT_INFO);
+        String durationText = durationCell.text().substring(0,5);
+        String[] durationTextArray = durationText.split(":");
+        return Integer.parseInt(durationTextArray[0]) * 60 + Integer.parseInt(durationTextArray[1]);
+    }
+
+    private Double parseDistance(Elements cells) {
+        Element distanceCell = cells.get(INDEX_OF_TD_WITH_DISTANCE_INFO);
+        String distanceText = distanceCell.text();
+        if (distanceText.isBlank()) {
+            return null;
+        }
+        return Double.parseDouble(distanceText.replaceAll(" km.*([/].*)?", ""));
+    }
+
     private FlightGroup parseFlightGroup(Elements cells) {
 
         Element flightCell = cells.get(INDEX_OF_TD_WITH_FLIGHT_INFO);
@@ -198,7 +223,7 @@ public class Scraper {
         if(elementsByAttribute.size() == 1){
             mLogger.debug("No track");
         }else if(elementsByAttribute.size() == 2){
-            mLogger.debug("With track");
+            mLogger.debug("With track or image");
         } else if(elementsByAttribute.size() == 3){
             mLogger.debug("With track and image");
         } else {
@@ -211,9 +236,19 @@ public class Scraper {
             throw new IllegalStateException("Wrong image selected for trip type intepretion");
         }
 
-        if (FLIGHT_IMAGE_NAME_TO_TYPE.get(srcImg) == null)
+        if (FLIGHT_IMAGE_NAME_TO_TYPE.get(srcImg) == null) {
             mLogger.error("type based on image " + srcImg + " not found");
+        }
         flightGroup.setType(FLIGHT_IMAGE_NAME_TO_TYPE.get(srcImg));
+
+        flightGroup.setHasTrackLog(false);
+        for (Element e : elementsByAttribute) {
+            FlightGroup.Type type = FLIGHT_IMAGE_NAME_TO_TYPE.get(e.attr("src"));
+            if (TRACKLOG.equals(type)) {
+                flightGroup.setHasTrackLog(true);
+            }
+        }
+
         return flightGroup;
     }
 
@@ -227,6 +262,8 @@ public class Scraper {
             .put("img/kkpg-ba.bmp", BALOON)
             .put("img/kkpg-spg.bmp", SPG)
             .put("img/kkpg-tp.bmp", TANDEM_PG)
+            .put("img/track2.gif", TRACKLOG)
+            .put("img/phototrack.gif", TRACKLOG)
             .build();
 
     protected boolean isADayRow(Element element) {

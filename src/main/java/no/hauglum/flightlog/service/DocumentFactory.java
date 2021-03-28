@@ -53,8 +53,8 @@ public class DocumentFactory {
         return documents;
     }
 
-    public List<DocumentWrapper> getLogForTakeOff(int startYear, String takaOffId) {
-        String main = "https://no.flightlog.org/fl.html?l=2&country_id=160&start_id=" + takaOffId + "&a=42";
+    public List<DocumentWrapper> getLogForTakeOff(int startYear, String countryId, String takeOffId) {
+        String main = "https://flightlog.org/fl.html?l=2&country_id="+countryId+"&start_id=" + takeOffId + "&a=42";
 
         List<DocumentWrapper> documents = new ArrayList<>();
         for (int year = startYear; year < LocalDate.now().getYear() +1; year++) {

@@ -4,7 +4,9 @@ import javax.persistence.*;
 import java.time.LocalDate;
 
 @Entity
-public class FlightGroup extends BaseEntity{
+@NamedQuery(name = "FlightGroup.findByTakeOffIdAndYear",
+        query = "select f from FlightGroup f where f.takeOff.takeOffId = ?1 and year(date) = ?2")
+public class FlightGroup extends BaseEntity {
 
     private String flightlogId;
 
@@ -17,6 +19,12 @@ public class FlightGroup extends BaseEntity{
     private LocalDate date;
 
     private int noOfFlights;
+
+    private Double distanceInKm;
+
+    private Integer durationInMinutes;
+
+    private Boolean hasTrackLog;
 
     @ManyToOne
     private TakeOff takeOff;
@@ -40,6 +48,10 @@ public class FlightGroup extends BaseEntity{
 
     public void setDate(LocalDate date) {
         this.date = date;
+    }
+
+    public void setFlightlogId(String flightlogId) {
+        this.flightlogId = flightlogId;
     }
 
     public String getFlightlogId() {
@@ -74,6 +86,30 @@ public class FlightGroup extends BaseEntity{
         return takeOff;
     }
 
+    public Double getDistanceInKm() {
+        return distanceInKm;
+    }
+
+    public void setDistanceInKm(Double distanceInKm) {
+        this.distanceInKm = distanceInKm;
+    }
+
+    public Integer getDurationInMinutes() {
+        return durationInMinutes;
+    }
+
+    public void setDurationInMinutes(Integer durationInMinutes) {
+        this.durationInMinutes = durationInMinutes;
+    }
+
+    public boolean isHasTrackLog() {
+        return hasTrackLog;
+    }
+
+    public void setHasTrackLog(boolean hasTrackLog) {
+        this.hasTrackLog = hasTrackLog;
+    }
+
     public enum Type  {
         PG(""),
         HG(""),
@@ -83,7 +119,8 @@ public class FlightGroup extends BaseEntity{
         SAILPLAIN(""),
         BALOON(""),
         SPG(""),
-        TANDEM_PG("Tandem paragliding")
+        TANDEM_PG("Tandem paragliding"),
+        TRACKLOG("")
         ;
 
         private final String mDesc;
@@ -92,7 +129,7 @@ public class FlightGroup extends BaseEntity{
             mDesc = desc;
         }
 
-        public CharSequence getImageName() {
+        public String getImageName() {
             return mDesc;
         }
     }
