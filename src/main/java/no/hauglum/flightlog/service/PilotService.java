@@ -7,9 +7,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.BitSet;
-import java.util.List;
+import java.time.LocalDateTime;
+import java.util.Optional;
 
 @Service
 public class PilotService {
@@ -19,18 +20,38 @@ public class PilotService {
     @Autowired
     private PilotRepository mPilotRepository;
 
-    @Scheduled(cron = "* * * * * *")//= every  seconds.
-    public void getNewFlights(){
-        System.out.println(" hei");
+
+    public Iterable<Pilot> getPilots() {
+        return  mPilotRepository.findAll();
     }
 
-    public List<Pilot> getPilots() {
-        return (List<Pilot>) mPilotRepository.findAll();
+
+    @Transactional
+    public Pilot updateOrCreate(Pilot pilot) {
+        Pilot oneByFlightlogId = mPilotRepository.findOneByFlightlogId(pilot.getFlightlogId());
+        if(oneByFlightlogId != null){
+            oneByFlightlogId.setUpdatedTime(LocalDateTime.now());
+            oneByFlightlogId.setName(pilot.getName());
+            oneByFlightlogId.setCountry(pilot.getCountry());
+            mPilotRepository.save(oneByFlightlogId);
+            mLogger.debug("One Pilot updated");
+        } else {
+            pilot.setUpdatedTime(LocalDateTime.now());
+            oneByFlightlogId = mPilotRepository.save(pilot);
+            mLogger.debug("New Pilot added to repo");
+        }
+        return oneByFlightlogId;
     }
 
-    @Scheduled(cron="${findNewFlightsCron}")
-    private void findNewFlights(){
-        mLogger.info("Start scraping");
-        mLogger.info("Done scraping");
+    public Long countAll() {
+        return mPilotRepository.count();
+    }
+
+    public Pilot save(Pilot pilot) {
+        return mPilotRepository.save(pilot);
+    }
+
+    public Optional<Pilot> get(Long id){
+        return mPilotRepository.findById(id);
     }
 }

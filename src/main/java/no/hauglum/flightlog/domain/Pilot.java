@@ -1,21 +1,17 @@
 package no.hauglum.flightlog.domain;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
+import java.time.LocalDateTime;
 
 @Entity
-public class Pilot {
+public class Pilot extends BaseEntity{
 
     private String name;
 
-    @Id
-    @GeneratedValue(strategy=GenerationType.AUTO)
-    private Long id;
-
-
     private String flightlogId;
+
+    @ManyToOne
+    private Country country;
 
     protected Pilot() {
     }
@@ -23,6 +19,19 @@ public class Pilot {
     public Pilot(String flightlogId, String name) {
         this.flightlogId = flightlogId;
         this.name = name;
+    }
+
+    public Pilot(String pilotId, String pilotName, Country country) {
+        this(pilotId, pilotName);
+        this.country = country;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setFlightlogId(String flightlogId) {
+        this.flightlogId = flightlogId;
     }
 
     public String getName() {
@@ -33,19 +42,19 @@ public class Pilot {
         return flightlogId;
     }
 
-    public Long getId() {
-        return id;
+    public Country getCountry() {
+        return country;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void setCountry(Country country) {
+        this.country = country;
     }
 
     @Override
     public String toString() {
         return "Pilot{" +
                 "mName='" + name + '\'' +
-                ", id=" + id +
+                ", id=" + getId() +
                 ", flightlogId='" + flightlogId + '\'' +
                 '}';
     }

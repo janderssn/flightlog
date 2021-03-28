@@ -1,7 +1,6 @@
 package no.hauglum.flightlog.service;
 
 import no.hauglum.flightlog.FatalException;
-import no.hauglum.flightlog.service.Scraper;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.junit.*;
@@ -32,13 +31,8 @@ public class ScraperTest {
 
     @Test
     public void scrape() {
-        Scraper scraper = new Scraper();
+        DocumentFactory scraper = new DocumentFactory();
         scraper.scrape("https://spring.io/blog");
-    }
-
-    @Test
-    public void bigTest(){
-        mScraper.scrapeFlightlog();
     }
 
     @Test
@@ -54,6 +48,21 @@ public class ScraperTest {
         element.attr("href", "asdkføaksjndøfjanø user_id=1234");
         assertTrue("User id is not parsed","1234".equals(mScraper.parseFlightlogId(element)));
     }
+
+    @Test
+    public void canParseTripId() {
+        Element element = new Element("hello");
+        element.attr("href", "asdkføaksjndøfjanø trip_id=60567858887");
+        assertTrue("Trip id is not parsed","60567858887".equals(mScraper.parseTripId(element)));
+    }
+
+    @Test
+    public void canParseTripIdShort() {
+        Element element = new Element("hello");
+        element.attr("href", "asdkføaksjndøfjanø trip_id=5");
+        assertTrue("Trip id is not parsed","5".equals(mScraper.parseTripId(element)));
+    }
+
 
     @Test
     public void canDetectDayHeader() {
@@ -93,14 +102,14 @@ public class ScraperTest {
 
     @Test
     public void badUrl() {
-        Scraper scraper = new Scraper();
+        DocumentFactory scraper = new DocumentFactory();
         exception.expect(FatalException.class);
         scraper.scrape("https://spring.io.io.io.io.io/blog");
     }
 
     @Test
     public void badPage() {
-        Scraper scraper = new Scraper();
+        DocumentFactory scraper = new DocumentFactory();
         exception.expect(FatalException.class);
         scraper.scrape("https://spring.io/HUBBABUBBA");
     }
