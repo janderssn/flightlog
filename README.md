@@ -6,13 +6,19 @@ Main goal is to be able to get info about activity on take off.
 Pilots are logging their activity in no.flightlog.org. There is no API for 
 reaching det storage behind the web pages so scraping i the only  way to go.
 
-It's also an web app with a simple status view
+# PostgreSQL Setup
 
+```
+sudo -u postgres psql
+postgres=# create database flightlog;
+postgres=# create user flightlog with encrypted password 'flightlog';
+postgres=# grant all privileges on database flightlog to flightlog;
+```
 
-Google Cloud Platform
-Name FlightLogReporter
-    mvn appengine:update
+```
+java -Dspring.profiles.active=postgresql -jar flightlog.jar
+```
 
+# Swagger UI
 
-
-    vaadin med https://www.chartjs.org/
+http://localhost:8080/swagger-ui.html

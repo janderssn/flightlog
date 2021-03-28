@@ -51,10 +51,12 @@ public class Scraper {
 
 
     @Scheduled(cron="${findNewFlightsCron}")
+    @PostConstruct
     protected void findNewFlights(){
         mLogger.info("Start scraping");
         //TODO finn siste scrape job og fortsett der den slapp
         loadCountriesToDb();
+        scrapeTakeOff(2020, "203","1486");
         mLogger.info("Done scraping");
     }
 
@@ -105,7 +107,6 @@ public class Scraper {
         scrapeTakeOff(startYear, "160", HOVEN_LOEN);
     }
 
-    //@PostConstruct
     public void scrapeAre() {
         scrapeTakeOff(2001, "203","431");
     }
