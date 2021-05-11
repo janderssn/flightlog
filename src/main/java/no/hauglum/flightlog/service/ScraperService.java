@@ -23,7 +23,8 @@ import static no.hauglum.flightlog.domain.FlightGroup.Type.*;
 import static no.hauglum.flightlog.domain.TakeOffs.HOVEN_LOEN;
 
 @Service
-public class Scraper {
+public class ScraperService {
+
     private Logger mLogger = LoggerFactory.getLogger(this.getClass().getName());
 
     @Autowired

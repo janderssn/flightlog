@@ -17,7 +17,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@RestController
+@RestController("/flights")
 public class FlightController {
 
     @Autowired
@@ -34,7 +34,7 @@ public class FlightController {
     @Value("${welcome.message}")
     private String welcomeMessage;
 
-    @RequestMapping("/")
+    @GetMapping("/")
     public String index() {
         return welcomeMessage + " </br>There is in db:" +
                 "</br> " + mPilotService.countAll() +  " Pilots"+
@@ -44,14 +44,14 @@ public class FlightController {
                 "";
     }
 
-    @RequestMapping(value = "flights/{takeOffId}/{year}", method = RequestMethod.GET, produces = "application/json")
+    @GetMapping(value = "{takeOffId}/{year}", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public List<FlightResponse> list(@PathVariable("takeOffId") String takeOffId, @PathVariable("year") String year) {
         List<FlightGroup> flightGroups = mFlightGroupService.getFlightGroups(takeOffId, Integer.parseInt(year));
         return flightGroups.stream().map(this::toFlightResponse).collect(Collectors.toList());
     }
 
-    @RequestMapping(value = "tracklogs/{flightLogId}/json", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "tracklogs/{flightLogId}/json", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity<List<Coordinate>> tracklogJSON(@PathVariable("flightLogId") String flightLogId) throws Exception {
         File tracklog = mFlightGroupService.getTrackLog(flightLogId);
@@ -60,7 +60,7 @@ public class FlightController {
                 .body(kmlService.getCoordinates(tracklog));
     }
 
-    @RequestMapping(value = "tracklogs/{flightLogId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_XML_VALUE)
+    @GetMapping(value = "tracklogs/{flightLogId}", produces = MediaType.APPLICATION_XML_VALUE)
     @ResponseBody
     public ResponseEntity<Resource> tracklogKML(@PathVariable("flightLogId") String flightLogId) throws IOException {
         File tracklog = mFlightGroupService.getTrackLog(flightLogId);
